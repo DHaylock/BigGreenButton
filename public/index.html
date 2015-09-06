@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Big Green Button</title>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=false"></script>
+    <script src="./js/bootstrap/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="./js/bootstrap/css/bootstrap.min.css">
+    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+<body>
+    <nav style="margin-bottom:0px" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="col-lg-4">
+            <div class="navbar-header">
+            <!-- <img alt="Brand" src="./assets/logo.jpg"> -->
+            <a class="navbar-brand" href="#">Big Green Button Bristol</a>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="navbar-form navbar-left" role="search">
+                <div class="input-group">
+                    <input id="get" type="text" class="form-control" placeholder="Find My Pledge">
+                    <span class="input-group-btn">
+                        <button id="submit" onclick="changeTitle()" type="submit" class="btn btn-primary">Submit</button>
+                    </span>
+                </div>
+                    <button id="edit" style="visibility:hidden; opacity:0;" type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#myModal">Edit Pledge</button>
+                </div>
+        </div>
+        <div class="navbar-form navbar-right">
+            <button id="info" style="border:none;" class="btn btn-primary" type="button" data-toggle="modal" data-target=".bs-example-modal-lg">
+                <span class="glyphicon glyphicon-cog" style='color:white;' aria-hidden='true'></span>
+            </button>
+        </div>
+      </div><!-- /.container-fluid -->
+    </nav>
+    <nav id="alertBar" style="opacity:0; margin-bottom:0px" class="navbar navbar-fixed-bottom navbar-inverse" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="col-lg-4">
+                <div class="navbar-header">
+                <!-- <img alt="Brand" src="./assets/logo.jpg"> -->
+                <h5 class="navbar-brand">A New Pledge Has Just Been Made</h5>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div id="map-canvas"></div>
+
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="pledgeLabel"></h4>
+            </div>
+            <div class="modal-body">
+              <form role="form" action="makePledge.php" method="post" class="form-horizontal">
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="name">Name:</label>
+                  <div class="col-sm-8">
+                      <input type="text" class="form-control" id="name" name="pledgename">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="pass">Password:</label>
+                  <div class="col-sm-8">
+                      <input type="password" class="form-control" id="pass" name="securekey">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="email">Email:</label>
+                  <div class="col-sm-8">
+                      <input type="email" class="form-control" id="email" name="emailaddress" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="pledge">Pledge:</label>
+                  <div class="col-sm-8">
+                      <textarea class="form-control" id="pledge" name="pledge" rows="3"></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                <input id="pledgeid" type="hidden" name="pledgeid" value="">
+                <input type="submit" name="submit" class="btn btn-primary btn-lg">
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Infomation</h3>
+      </div>
+      <div class="modal-body">
+        <p>This Contains data about the scheme/the button.</p>
+        <p>Built by <strong>David Haylock</strong> and <strong>Chloe Meinnick</strong></p>
+        <div align='center'>
+            <img alt="Brand" src="./assets/logo.jpg">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+</html>

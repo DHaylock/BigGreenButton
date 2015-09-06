@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Form</title>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript">
+      var win = window.location.toString(),
+      params = win.split('?')[1],
+      params1 = params.split('=')[1]
+      console.log(params1);
+      $(document).ready(function() {
+        $('#pledgeid').attr('value',params1.toString());
+        $('#form').hide();
+        $('#cancel').hide();
+      });
+      function showForm() {
+        $('#form').show();
+        $('#edit').hide();
+        $('#cancel').show();
+      }
+      function dismissForm() {
+        $('#form').hide();
+        $('#edit').show();
+        $('#cancel').hide();
+      }
+    </script>
+  </head>
+  <body>
+
+    <button id="edit" onclick="showForm()">Edit</button>
+    <form id="form" action="makePledge.php" method="post">
+      Enter Secure Key: <input type="password" name="securekey">
+      </br>
+      Who is Pledging: <input type="text" name="pledgename">
+    </br>
+      What is your Pledge?: <input type="text" name="pledge">
+      </br>
+      <input id="pledgeid" type="hidden" name="pledgeid" value="">
+      <input type="submit" name="submit">
+    </form>
+    <button id="cancel" onclick="dismissForm()">Cancel</button>
+
+  </body>
+</html>
