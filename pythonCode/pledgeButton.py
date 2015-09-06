@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# This will not work PSeudo code for the moment.
 # from Adafruit_Thermal import *
 import string
 import random
@@ -8,35 +7,71 @@ import httplib,urllib
 import sys
 import datetime
 import math
-import Tkinter
-from PIL import Image,ImageTk
+import termios
+import os
+import csv
+import time
 
+print "-----------------------------------------------------"
+print "Bristol Big Green Button"
+TERMIOS = termios
+# Excuses for GPS
+excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","the amount of rain!","generic topology failure.","extreme astrological conditions","the position of Venus","the fear of spoons"]
 
-# from PIL import Image, ImageTk
-    # Make Window
-# root = Tkinter.Tk()
-# root.title("Bristol Green Capital Pledge")
-# root.geometry("300x600+300+600")
-# root.grid()
-# root.entry = Tkinter.Entry(root)
-# root.entry.grid(column=0,row=0,sticky='EW')
-# LATLabelVar = Tkinter.StringVar()
-# LNGLabelVar = Tkinter.StringVar()
-# # Make Window
-# GPSLATlabel = Tkinter.Label(root, textvariable=LATLabelVar, anchor="w",fg="black",bg="white")
-# GPSLATlabel.grid(column=0,row=0,columnspan=1,sticky='EW')
-# GPSLNGlabel = Tkinter.Label(root, textvariable=LNGLabelVar, anchor="w",fg="black",bg="white")
-# GPSLNGlabel.grid(column=0,row=1,columnspan=1,sticky='EW')
+#HTTP Stuff
+secretPOSTKey = ""
+requestHost = ""
+requestExtension = ""
 
-# img = ImageTk.PhotoImage(Image.open("GreenCapitalLogo.png"))
-# Tkinter.Label(root,image=img)
-# photo = ImageTk.PhotoImage(image)
+headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
+passkey = ""
+uniqueID = ""
+global lat
+global lng
+haveGPS = True
+endLat = ""
+endLng = ""
 
+#----------------------------------------------------
+# Get the host, upload extension and secret key
+def getSetupData():
+    import csv
+    with open("info.csv","rb") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            requestHost = row['Host']
+            requestExtension = row['Request']
+            secretPOSTKey = row['Secret']
+
+    print "-----------------------------------------------------"
+    print "Hostname: %s" % requestHost
+    print "Extension: %s" % requestExtension
+    print "Secret Key: %s" % secretPOSTKey
+
+#----------------------------------------------------
+# Function to get keys
+def getkey():
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    new = termios.tcgetattr(fd)
+    new[3] = new[3] & ~TERMIOS.ICANON & ~TERMIOS.ECHO
+    new[6][TERMIOS.VMIN] = 1
+    new[6][TERMIOS.VTIME] = 0
+    termios.tcsetattr(fd, TERMIOS.TCSANOW, new)
+    c = None
+    try:
+            c = os.read(fd, 1)
+    finally:
+            termios.tcsetattr(fd, TERMIOS.TCSAFLUSH, old)
+    return c
+
+#-----------------------------------------------------
 def shuffle_key(pass_string):
     temppass_string = list(pass_string)
     shuffle(temppass_string)
     return ''.join(temppass_string)
 
+#-----------------------------------------------------
 # Haversine formula example in Python
 # Author: Wayne Dyck
 def distance(origin, destination):
@@ -52,33 +87,14 @@ def distance(origin, destination):
     d = radius * c
     return d
 
-# Excuses for GPS
-excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","the amount of rain!","generic topology failure.","extreme astrological conditions","the position of Venus"]
-
-#HTTP Stuff
-secretPOSTKey = "jkqcu309qivdkmv"
-requestHost = "localhost:8888"
-requestExtention = "/uploadPledge.php"
-headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
-
-# This is the GPS
-lat = random.uniform(51.582492,51.348403)
-lng = random.uniform(-2.780278,-2.404524)
-passkey = ""
-uniqueID = ""
-created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-haveGPS = True
-endLat = ""
-endLng = ""
-
-# LATLabelVar.set(lat)
-# LNGLabelVar.set(lng)
 # Generate a New Password
+#-----------------------------------------------------
 def GeneratePassword(size=15):
     randomKey = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(size)])
     return randomKey
 
 # Print the Ticket Data
+#-----------------------------------------------------
 def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "-----------------------------------------------------"
     print "Printing Ticket Data"
@@ -97,44 +113,71 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     return
 
 # Send the Ticket Data to the Server
+#-----------------------------------------------------
 def SendTicketData(id,passkey,haveGPS,lat,lng,time_created):
     print "-----------------------------------------------------"
     print "Sending data to Database"
     print "-----------------------------------------------------"
     connection = httplib.HTTPConnection(requestHost)
     params = urllib.urlencode({'pledge': "1","secret":secretPOSTKey,"pledgeid":uniqueID,"lat":lat,"lng":lng,"passkey":passkey})
-    connection.request("POST",requestExtention,params,headers)
+    connection.request("POST",requestExtension,params,headers)
     response = connection.getresponse()
     print response.status,response.reason
     print response.read()
 
-if haveGPS == False:
-    lat = "51.414856"
-    lng = "-2.652880"
-else:
-    print "We're good!"
 
-dst = distance((51.414856, -2.652880),(lat, lng))
-# If the gps is more the 20km away from the center point
-if dst > 20:
-    print "GPS is Incorrect"
-else:
-    print "GPS makes sense"
+def getData():
+    print "-----------------------------------------------------"
+    print "Getting Info"
+    lat = random.uniform(51.582492,51.348403)
+    lng = random.uniform(-2.780278,-2.404524)
+    created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print "-----------------------------------------------------"
+    if haveGPS == False:
+        lat = "51.414856"
+        lng = "-2.652880"
+    else:
+        print "We're good!"
 
+    dst = distance((51.414856, -2.652880),(lat, lng))
+    # If the gps is more the 20km away from the center point
+    if dst > 20:
+        print "GPS is Incorrect"
+    else:
+        print "GPS makes sense"
 
-print "-----------------------------------------------------"
-print "Bristol Big Green Button"
+    endLat = str(lat)
+    endLng = str(lng)
 
-endLat = str(lat)
-endLng = str(lng)
+    passkey = GeneratePassword(15)
+    seq = endLat[-3:],passkey[-5:],endLng[-3:]
+    tempUniqueID = ''.join(seq)
 
-passkey = GeneratePassword(15)
-seq = endLat[-3:],passkey[-5:],endLng[-3:]
-tempUniqueID = ''.join(seq)
+    uniqueID = shuffle_key(pass_string=tempUniqueID)
 
-uniqueID = shuffle_key(pass_string=tempUniqueID)
+    PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=haveGPS,_lat=endLat,_lng=endLng,_time_created=created_at);
+    print "-----------------------------------------------------"
+    print "Sending data to Database"
+    print "-----------------------------------------------------"
+    #SendTicketData(id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
+    print "-----------------------------------------------------"
+    print "Sucess"
+    print "-----------------------------------------------------"
 
-PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=haveGPS,_lat=endLat,_lng=endLng,_time_created=created_at);
-SendTicketData(id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
+getSetupData()
+#----------------------------------------------------
+def main_loop():
+    while 1:
+        c = getkey()
+        if c == 'g':
+            getData()
 
-# root.mainloop()
+        time.sleep(0.1)
+
+#----------------------------------------------------
+if __name__ == '__main__':
+    try:
+        main_loop()
+    except KeyboardInterrupt:
+        print >> sys.stderr, '\nExiting by user request.\n'
+        sys.exit(0)
