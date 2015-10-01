@@ -124,15 +124,15 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
         printer.println(excuses[random.randint(0,len(excuses)-1)])
         print "Your Pledge will be placed at Green Capital HQ"
         printer.println("Your Pledge will be placed at Green Capital HQ")
-        print lat + ","+ lng;
-        printer.println("Lat: "+lat)
-        printer.println("Lng: "+lng)
+        print _lat + ","+ _lng;
+        printer.println("Lat: "+_lat)
+        printer.println("Lng: "+_lng)
     else:
         print "Your Pledge Location"
         print _lat+ " " +_lng;
         printer.println("Your Pledge Location")
-        printer.println("Lat: "+lat)
-        printer.println("Lng: "+lng)
+        printer.println("Lat: "+_lat)
+        printer.println("Lng: "+_lng)
 
     print "Created at: " + _time_created;
     printer.println("Created at: " + _time_created)
