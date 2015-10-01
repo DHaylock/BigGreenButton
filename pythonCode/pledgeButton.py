@@ -30,7 +30,7 @@ passkey = ""
 uniqueID = ""
 global lat
 global lng
-haveGPS = True
+haveGPS = False
 endLat = ""
 endLng = ""
 credentials = []
@@ -107,13 +107,10 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "-----------------------------------------------------"
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
-    printer.inverseOn()
-    printer.doubleHeightOn()
+
+    printer.boldOn()
     printer.println("Big Green Button")
-    printer.inverseOff()
-    printer.doubleHeightOff()
-
-
+    printer.boldOff()
     print "This is your id: "+unique_id;
     printer.println(unique_id)
     print "This is your password: "+_passkey;
@@ -136,6 +133,10 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 
     print "Created at: " + _time_created;
     printer.println("Created at: " + _time_created)
+
+    printer.sleep()
+    printer.wake()
+    printer.setDefault()
     # return
 
 # Send the Ticket Data to the Server
