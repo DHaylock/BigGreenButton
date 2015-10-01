@@ -107,18 +107,20 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "-----------------------------------------------------"
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
-
+    printer.feed(2)
     printer.boldOn()
     printer.println("Big Green Button")
     printer.boldOff()
+    printer.feed(2)
     print "This is your id: "+unique_id;
     printer.println(unique_id)
     print "This is your password: "+_passkey;
     printer.println(_passkey)
     if haveGPS == False:
-        print "Unfortunately the GPS isn't working due to " + excuses[random.randint(0,len(excuses)-1)]
+        ex = excuses[random.randint(0,len(excuses)-1)]
+        print "Unfortunately the GPS isn't working due to " + ex
         printer.println("Unfortunately the GPS isn't working due to")
-        printer.println(excuses[random.randint(0,len(excuses)-1)])
+        printer.println(ex)
         print "Your Pledge will be placed at Green Capital HQ"
         printer.println("Your Pledge will be placed at Green Capital HQ")
         print _lat + ","+ _lng;
@@ -133,6 +135,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 
     print "Created at: " + _time_created;
     printer.println("Created at: " + _time_created)
+    printer.feed(5)
 
     printer.sleep()
     printer.wake()
