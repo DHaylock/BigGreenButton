@@ -159,8 +159,8 @@ def getData():
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print "-----------------------------------------------------"
     if haveGPS == False:
-        lat = "51.414856"
-        lng = "-2.652880"
+        lat = 51.414856
+        lng = -2.652880
     else:
         print "We're good!"
 
