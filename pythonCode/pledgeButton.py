@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-# from Adafruit_Thermal import *
+from Adafruit_Thermal import *
 import string
 import random
 from random import shuffle
-import httplib,urllib
+import httplib
+import urllib
+import requests
 import sys
 import datetime
 import math
@@ -18,11 +20,11 @@ TERMIOS = termios
 # Excuses for GPS
 excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","the amount of rain!","generic topology failure.","extreme astrological conditions","the position of Venus","the fear of spoons"]
 
-#HTTP Stuff
-secretPOSTKey = ""
-requestHost = ""
-requestExtension = ""
 
+
+printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
+
+#HTTP Stuff
 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
 passkey = ""
 uniqueID = ""
@@ -31,10 +33,15 @@ global lng
 haveGPS = True
 endLat = ""
 endLng = ""
+credentials = []
+
 
 #----------------------------------------------------
 # Get the host, upload extension and secret key
 def getSetupData():
+    secretPOSTKey = ""
+    requestHost = ""
+    requestExtension = ""
     import csv
     with open("info.csv","rb") as f:
         reader = csv.DictReader(f)
@@ -47,6 +54,7 @@ def getSetupData():
     print "Hostname: %s" % requestHost
     print "Extension: %s" % requestExtension
     print "Secret Key: %s" % secretPOSTKey
+    return requestHost,requestExtension,secretPOSTKey
 
 #----------------------------------------------------
 # Function to get keys
@@ -99,32 +107,48 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "-----------------------------------------------------"
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
+    printer.inverseOn()
+    printer.doubleHeightOn()
+    printer.println("Big Green Button")
+    printer.inverseOff()
+    printer.doubleHeightOff()
+
+
     print "This is your id: "+unique_id;
+    printer.println(unique_id)
     print "This is your password: "+_passkey;
+    printer.println(_passkey)
     if haveGPS == False:
         print "Unfortunately the GPS isn't working due to " + excuses[random.randint(0,len(excuses)-1)]
+        printer.println("Unfortunately the GPS isn't working due to")
+        printer.println(excuses[random.randint(0,len(excuses)-1)])
         print "Your Pledge will be placed at Green Capital HQ"
+        printer.println("Your Pledge will be placed at Green Capital HQ")
         print lat + ","+ lng;
+        printer.println("Lat: "+lat)
+        printer.println("Lng: "+lng)
     else:
-        print "You Pledge location"
+        print "Your Pledge Location"
         print _lat+ " " +_lng;
+        printer.println("Your Pledge Location")
+        printer.println("Lat: "+lat)
+        printer.println("Lng: "+lng)
 
     print "Created at: " + _time_created;
-    return
+    printer.println("Created at: " + _time_created)
+    # return
 
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
-def SendTicketData(id,passkey,haveGPS,lat,lng,time_created):
+def SendTicketData(host,extensions,id,passkey,haveGPS,lat,lng,time_created):
+    params = {'pledge': "1","secretkey":passkey,"pledgeid":id,"lat":lat,"lng":lng,"passkey":passkey}
+    r = requests.post(host+extensions,data=params)
     print "-----------------------------------------------------"
-    print "Sending data to Database"
-    print "-----------------------------------------------------"
-    connection = httplib.HTTPConnection(requestHost)
-    params = urllib.urlencode({'pledge': "1","secret":secretPOSTKey,"pledgeid":uniqueID,"lat":lat,"lng":lng,"passkey":passkey})
-    connection.request("POST",requestExtension,params,headers)
-    response = connection.getresponse()
-    print response.status,response.reason
-    print response.read()
-
+    if r.status_code == 200:
+        print "Details Sent"
+    else:
+        print "Houston we have a problem " + r.status_code
+        print r.text
 
 def getData():
     print "-----------------------------------------------------"
@@ -154,28 +178,24 @@ def getData():
     tempUniqueID = ''.join(seq)
 
     uniqueID = shuffle_key(pass_string=tempUniqueID)
-
+    print "-----------------------------------------------------"
+    print "Printing Ticket"
     PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=haveGPS,_lat=endLat,_lng=endLng,_time_created=created_at);
     print "-----------------------------------------------------"
     print "Sending data to Database"
-    print "-----------------------------------------------------"
-    #SendTicketData(id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
-    print "-----------------------------------------------------"
-    print "Sucess"
-    print "-----------------------------------------------------"
+    SendTicketData(host=credentials[0],extensions=credentials[1],id=uniqueID,passkey=credentials[2],haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
 
-getSetupData()
 #----------------------------------------------------
 def main_loop():
     while 1:
         c = getkey()
         if c == 'g':
             getData()
-
         time.sleep(0.1)
 
 #----------------------------------------------------
 if __name__ == '__main__':
+    credentials = getSetupData()
     try:
         main_loop()
     except KeyboardInterrupt:

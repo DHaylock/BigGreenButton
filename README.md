@@ -32,5 +32,13 @@ The code has the following dependancies:
 
 ####How to install
 
+* Install the following Dependancies
+````sudo apt-get install pip````
+````sudo apt-get install python-pip````
+````sudo pip install RPi.GPIO````
+````sudo apt-get install build-essential python-dev python-smbus gpsd gpsd-clients python-gps python-serial python-imaging python-unidecode````
+````sudo apt-get update````
+
+
 * Clone this Repo
 ````git clone https://github.com/DHaylock/BigGreenButton.git````
