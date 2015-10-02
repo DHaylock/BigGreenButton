@@ -166,17 +166,21 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
         print "Houston we have a problem " + r.status_code
         print r.text
 
+# Get the Data
+#-----------------------------------------------------
 def getData():
     print "-----------------------------------------------------"
     print "Getting Info"
-    lat = random.uniform(51.582492,51.348403)
-    lng = random.uniform(-2.780278,-2.404524)
+    # lat = random.uniform(51.582492,51.348403)
+    # lng = random.uniform(-2.780278,-2.404524)
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print "-----------------------------------------------------"
     if haveGPS == False:
+        print "No GPS"
         lat = 51.414856
         lng = -2.652880
     else:
+        print "Have GPS"
         print "We're good!"
 
     dst = distance((51.414856, -2.652880),(lat, lng))
@@ -208,7 +212,7 @@ def main_loop():
         if c == 'g':
             report = session.next()
             if report['class'] == 'TPV':
-                print "Have GPS"
+                # print "Have GPS"
                 haveGPS = True
                 if report['class'] == 'TPV':
                     if hasattr(report, 'time'):
@@ -221,7 +225,7 @@ def main_loop():
                         print report.lon
             else:
                 haveGPS = False
-                print "No GPS"
+                # print "No GPS"
 
             getData()
 
