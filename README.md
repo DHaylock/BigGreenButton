@@ -14,6 +14,7 @@ This is the python scripts which gathers pledge location, time and generates uni
 This is where the pledges are collected and displayed on a map. Users are then able to access their pledge change the title, what they are going to pledge and if the gps is out alter the coordinates.
 
 ####Components
+* [Raspberry Pi B+](https://www.coolcomponents.co.uk/raspberry-pi-model-b.html)
 * [Adafruit Ultimate GPS Unit] (http://www.adafruit.com/products/746)
 * [Standard LCD 16x2] (http://www.adafruit.com/products/181?&main_page=product_info&products_id=181)
 * [Mini Thermal Receipt Printer] (https://www.adafruit.com/products/597)
@@ -24,6 +25,7 @@ The code has the following dependancies:
 #####Web
 * [Bootstrap](http://getbootstrap.com/javascript/)
 * [Open Street Maps API](http://wiki.openstreetmap.org/wiki/API_v0.6)
+* [Leaflet.js](http://leafletjs.com/)
 
 #####Python
 * [Adafruit Thermal Printer](https://github.com/adafruit/Python-Thermal-Printer)
