@@ -13,28 +13,42 @@ import termios
 import os
 import csv
 import time
+import gps
 
 print "-----------------------------------------------------"
-print "Bristol Big Green Button"
+print """
+  ____  _          _____                       ____        _   _
+ |  _ \(_)        / ____|                     |  _ \      | | | |
+ | |_) |_  __ _  | |  __ _ __ ___  ___ _ __   | |_) |_   _| |_| |_ ___  _____
+ |  _ <| |/ _  | | | |_ |  __/ _ \/ _ \ '_ \  |  _ <| | | | __| __/ _ \|  _  |
+ | |_) | | (_| | | |__| | | |  __/  __/ | | | | |_) | |_| | |_| || (_) | | | |
+ |____/|_|\__, |  \_____|_|  \___|\___|_| |_| |____/ \____|\__|\__\___/|_| |_|
+           __/ |
+          |___/                                                               """
+
 TERMIOS = termios
+
 # Excuses for GPS
 excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","the amount of rain!","generic topology failure.","extreme astrological conditions","the position of Venus","the fear of spoons"]
 
-
-
+# Initialize Printer
 printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
 
-#HTTP Stuff
+# Setup GPS
+session = gps.gps("localhost", "2947")
+session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+
+#Setup Http
 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
 passkey = ""
 uniqueID = ""
+credentials = []
+
 global lat
 global lng
 haveGPS = False
 endLat = ""
 endLng = ""
-credentials = []
-
 
 #----------------------------------------------------
 # Get the host, upload extension and secret key
@@ -42,7 +56,6 @@ def getSetupData():
     secretPOSTKey = ""
     requestHost = ""
     requestExtension = ""
-    import csv
     with open("info.csv","rb") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -79,9 +92,10 @@ def shuffle_key(pass_string):
     shuffle(temppass_string)
     return ''.join(temppass_string)
 
-#-----------------------------------------------------
-# Haversine formula example in Python
+
+# Haversine formula
 # Author: Wayne Dyck
+#-----------------------------------------------------
 def distance(origin, destination):
     lat1, lon1 = origin
     lat2, lon2 = destination
@@ -104,17 +118,21 @@ def GeneratePassword(size=15):
 # Print the Ticket Data
 #-----------------------------------------------------
 def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
+    printer.wake()
+    printer.begin(2)
     print "-----------------------------------------------------"
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
-    printer.feed(2)
+    printer.feed(1)
     printer.boldOn()
     printer.println("Big Green Button")
     printer.boldOff()
-    printer.feed(2)
+    printer.feed(1)
     print "This is your id: "+unique_id;
+    printer.println("Unique ID")
     printer.println(unique_id)
     print "This is your password: "+_passkey;
+    printer.println("Passkey")
     printer.println(_passkey)
     if haveGPS == False:
         ex = excuses[random.randint(0,len(excuses)-1)]
@@ -135,17 +153,15 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 
     print "Created at: " + _time_created;
     printer.println("Created at: " + _time_created)
-    printer.feed(5)
+    printer.feed(2)
 
     printer.sleep()
-    printer.wake()
     printer.setDefault()
-    # return
 
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
-def SendTicketData(host,extensions,id,passkey,haveGPS,lat,lng,time_created):
-    params = {'pledge': "1","secretkey":passkey,"pledgeid":id,"lat":lat,"lng":lng,"passkey":passkey}
+def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_created):
+    params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"lat":lat,"lng":lng,"passkey":passkey}
     r = requests.post(host+extensions,data=params)
     print "-----------------------------------------------------"
     if r.status_code == 200:
@@ -187,12 +203,25 @@ def getData():
     PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=haveGPS,_lat=endLat,_lng=endLng,_time_created=created_at);
     print "-----------------------------------------------------"
     print "Sending data to Database"
-    SendTicketData(host=credentials[0],extensions=credentials[1],id=uniqueID,passkey=credentials[2],haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
+    SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
 
 #----------------------------------------------------
 def main_loop():
-    while 1:
+    while True:
         c = getkey()
+        try:
+            report = session.next()
+            if report['class'] == 'TPV':
+                print "Have GPS"
+                
+        except KeyError:
+            pass
+        except KeyboardInterrupt:
+            quit()
+        except StopIteration:
+            session = None
+            print "GPSD has terminated"
+
         if c == 'g':
             getData()
         time.sleep(0.1)
@@ -203,5 +232,8 @@ if __name__ == '__main__':
     try:
         main_loop()
     except KeyboardInterrupt:
+        printer.sleep()
+        printer.wake()
+        printer.setDefault()
         print >> sys.stderr, '\nExiting by user request.\n'
         sys.exit(0)
