@@ -33,7 +33,7 @@ excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","t
 
 # Initialize Printer
 printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
-
+printer.sleep()
 # Setup GPS
 session = gps.gps("localhost", "2947")
 session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
@@ -118,8 +118,6 @@ def GeneratePassword(size=15):
 # Print the Ticket Data
 #-----------------------------------------------------
 def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
-    printer.wake()
-    printer.begin(2)
     print "-----------------------------------------------------"
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
@@ -155,8 +153,8 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.println("Created at: " + _time_created)
     printer.feed(2)
 
-    printer.sleep()
-    printer.setDefault()
+    # printer.sleep()
+    # printer.setDefault()
 
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
@@ -209,21 +207,17 @@ def getData():
 def main_loop():
     while True:
         c = getkey()
-        try:
-            report = session.next()
-            if report['class'] == 'TPV':
-                print "Have GPS"
-                
-        except KeyError:
-            pass
-        except KeyboardInterrupt:
-            quit()
-        except StopIteration:
-            session = None
-            print "GPSD has terminated"
+        # try:
+        #     report = session.next()
+        #     if report['class'] == 'TPV':
+        #         print "Have GPS"
+        # except StopIteration:
+        #     session = None
+        #     print "GPSD has terminated"
 
         if c == 'g':
             getData()
+
         time.sleep(0.1)
 
 #----------------------------------------------------
@@ -233,7 +227,5 @@ if __name__ == '__main__':
         main_loop()
     except KeyboardInterrupt:
         printer.sleep()
-        printer.wake()
-        printer.setDefault()
         print >> sys.stderr, '\nExiting by user request.\n'
         sys.exit(0)
