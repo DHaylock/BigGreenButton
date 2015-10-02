@@ -204,24 +204,25 @@ def getData():
 #----------------------------------------------------
 def main_loop():
     while True:
-
         c = getkey()
-
-        if c == 's':
+        if c == 'g':
             report = session.next()
             if report['class'] == 'TPV':
                 print "Have GPS"
+                haveGPS = True
+                if report['class'] == 'TPV':
+                    if hasattr(report, 'time'):
+                        print report.time
+            	    if hasattr(report, 'lat'):
+                        lat = report.lat
+                        print report.lat
+            	    if hasattr(report, 'lon'):
+                        lon = report.lon
+                        print report.lon
             else:
+                haveGPS = False
                 print "No GPS"
 
-        # try:
-        #     report = session.next()
-        #
-        # except StopIteration:
-        #     session = None
-        #     print "GPSD has terminated"
-
-        if c == 'g':
             getData()
 
         time.sleep(0.1)
