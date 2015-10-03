@@ -29,8 +29,6 @@ print """
 print "-----------------------------------------------------"
 TERMIOS = termios
 
-# Excuses for GPS
-excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","the amount of rain!","generic topology failure.","extreme astrological conditions","the position of Venus","the fear of spoons"]
 
 # Initialize Printer
 printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
@@ -40,17 +38,18 @@ printer.sleep()
 session = gps.gps("localhost", "2947")
 session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
 
+global lat
+global lng
+haveGPS = False
+endLat = ""
+endLng = ""
+
 #Setup Http
 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
 passkey = ""
 uniqueID = ""
 credentials = []
 
-global lat
-global lng
-haveGPS = False
-endLat = ""
-endLng = ""
 
 
 # Get the host, upload extension and secret key
@@ -124,8 +123,8 @@ def GeneratePassword(size=15):
 def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
-    printer.feed(2)
-    printer.setSize('M')
+    printer.feed(1)
+    printer.setSize('L')
     printer.println("Big Green Button")
     printer.feed(1)
     printer.setSize('S')
@@ -140,13 +139,11 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.println(_passkey)
     printer.underlineOff()
     if haveGPS == False:
-        # ex = excuses[random.randint(0,len(excuses)-1)]
         GPSLine = "The GPS didnt Work!"
         print GPSLine
         printer.println(GPSLine)
-        # printer.println(ex)
         print "Your Pledge is at Green Capital HQ"
-        printer.println("Your Pledge is at Green Capital HQ")
+        printer.println("Your Pledge at Green Capital HQ")
         print _lat + ","+ _lng;
         printer.println("Lat: "+_lat)
         printer.println("Lng: "+_lng)
@@ -159,7 +156,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 
     print "Created at: " + _time_created;
     printer.println("Created at: " + _time_created)
-    printer.feed(2)
+    printer.feed(1)
     printer.println("Please Visit")
     printer.println("http://Someurl.co.uk")
     printer.println("And make your pledge!")
