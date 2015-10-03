@@ -226,14 +226,13 @@ def main_loop():
         if report['class'] == 'TPV':
             print "Have GPS"
             haveGPS = True
-            if report['class'] == 'TPV':
-                if hasattr(report, 'time'):
+            if hasattr(report, 'time'):
                 print report.time
             if hasattr(report, 'lat'):
-                lat = report.lat
+                # lat = report.lat
                 print report.lat
             if hasattr(report, 'lon'):
-                lon = report.lon
+                # lon = report.lon
                 print report.lon
         else:
             haveGPS = False
