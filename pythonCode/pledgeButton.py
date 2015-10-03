@@ -58,7 +58,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Button Pushed Flag
-global buttonPushed = False
+global buttonPushed
+buttonPushed = False
 
 # Get the host, upload extension and secret key
 #----------------------------------------------------
