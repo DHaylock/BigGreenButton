@@ -14,6 +14,7 @@ import os
 import csv
 import time
 import gps
+import RPi.GPIO as GPIO
 
 print "-----------------------------------------------------"
 print """
@@ -27,8 +28,9 @@ print """
           |___/                                                               """
 
 print "-----------------------------------------------------"
-TERMIOS = termios
 
+# For debugging
+TERMIOS = termios
 
 # Initialize Printer
 printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
@@ -50,7 +52,10 @@ passkey = ""
 uniqueID = ""
 credentials = []
 
-
+# Setup Button
+buttonPin = 18
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Get the host, upload extension and secret key
 #----------------------------------------------------
@@ -234,9 +239,13 @@ def main_loop():
             # haveGPS = False
             print "No GPS"
 
-        # getData()
-        time.sleep(0.25)
+        input_state = GPIO.input(buttonPin)
+        if input_state == False:
+             print('Button Pressed')
+             getData()
 
+        time.sleep(0.25)
+        
 # Run
 #----------------------------------------------------
 if __name__ == '__main__':
