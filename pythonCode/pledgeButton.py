@@ -224,22 +224,22 @@ def main_loop():
         # if c == 'g':
         report = session.next()
         if report['class'] == 'TPV':
-            # print "Have GPS"
+            print "Have GPS"
             haveGPS = True
             if report['class'] == 'TPV':
                 if hasattr(report, 'time'):
-                    print report.time
-        	    if hasattr(report, 'lat'):
-                    lat = report.lat
-                    print report.lat
-        	    if hasattr(report, 'lon'):
-                    lon = report.lon
-                    print report.lon
+                print report.time
+            if hasattr(report, 'lat'):
+                lat = report.lat
+                print report.lat
+            if hasattr(report, 'lon'):
+                lon = report.lon
+                print report.lon
         else:
             haveGPS = False
-            # print "No GPS"
+            print "No GPS"
 
-            # getData()
+        # getData()
         time.sleep(0.5)
 
 # Run
