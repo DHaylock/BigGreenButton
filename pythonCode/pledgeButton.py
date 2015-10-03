@@ -57,6 +57,9 @@ buttonPin = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+# Button Pushed Flag
+buttonPushed = False
+
 # Get the host, upload extension and secret key
 #----------------------------------------------------
 def getSetupData():
@@ -190,8 +193,10 @@ def getData():
     print "-----------------------------------------------------"
     if haveGPS == False:
         print "No GPS"
-        lat = 51.414856
-        lng = -2.652880
+        lat = random.uniform(51.582492,51.348403)
+        lng = random.uniform(-2.780278,-2.404524)
+        # lat = 51.414856
+        # lng = -2.652880
     else:
         print "Have GPS"
         print "We're good!"
@@ -219,12 +224,12 @@ def getData():
     print "Sending data to Database"
     SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
 
+    # Button Reset
+    buttonPushed = False
 # Main Loop
 #----------------------------------------------------
 def main_loop():
     while True:
-        # c = getkey()
-        # if c == 'g':
         report = session.next()
         if report['class'] == 'TPV':
             print "Have GPS"
@@ -240,9 +245,10 @@ def main_loop():
             print "No GPS"
 
         input_state = GPIO.input(buttonPin)
-        if input_state == False:
+        if input_state == False & buttonPushed == False:
              print('Button Pressed')
              getData()
+             buttonPushed = True
 
         time.sleep(0.25)
 
