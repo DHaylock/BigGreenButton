@@ -235,10 +235,11 @@ def main_loop():
             # haveGPS = True
             if hasattr(report, 'lat'):
                 lat = report.lat
+                print str(lat)
             if hasattr(report, 'lon'):
                 lon = report.lon
+                print str(lon)
 
-            print str(lat) + ' ' + str(lon)
             if input_state == False:
                  print('Button Pressed')
                  getData()
