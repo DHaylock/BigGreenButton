@@ -135,7 +135,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.println(unique_id)
     printer.underlineOff()
     print "This is your password: "+_passkey;
-    printer.println("Passkey")
+    printer.println("Passkey:")
     printer.underlineOn()
     printer.println(_passkey)
     printer.underlineOff()
@@ -168,7 +168,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
 def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_created):
-    params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"lat":lat,"lng":lng,"passkey":passkey}
+    params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"havegps":haveGPS,"lat":lat,"lng":lng,"passkey":passkey}
     r = requests.post(host+extensions,data=params)
     print "-----------------------------------------------------"
     if r.status_code == 200:
