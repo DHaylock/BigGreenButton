@@ -58,7 +58,6 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Button Pushed Flag
-global buttonPushed
 buttonPushed = False
 
 # Get the host, upload extension and secret key
@@ -186,6 +185,7 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
 # Get the Data
 #-----------------------------------------------------
 def getData():
+    global buttonPushed
     print "-----------------------------------------------------"
     print "Getting Info"
     # lat = random.uniform(51.582492,51.348403)
@@ -230,6 +230,7 @@ def getData():
 # Main Loop
 #----------------------------------------------------
 def main_loop():
+    global buttonPushed
     while True:
         report = session.next()
         if report['class'] == 'TPV':
