@@ -229,7 +229,7 @@ def main_loop():
             if hasattr(report, 'lon'):
                 lon = report.lon
 
-            print lat + ' ' + lon
+            print str(lat) + ' ' + str(lon)
         else:
             # haveGPS = False
             print "No GPS"
