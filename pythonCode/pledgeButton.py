@@ -247,7 +247,7 @@ def main_loop():
             print "No GPS"
 
         input_state = GPIO.input(buttonPin)
-        if input_state == False & buttonPushed == False:
+        if input_state == False:
              print('Button Pressed')
              getData()
              buttonPushed = True
