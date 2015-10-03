@@ -100,7 +100,7 @@ def shuffle_key(pass_string):
 # Haversine formula
 # Author: Wayne Dyck
 #-----------------------------------------------------
-def distance(origin, destination):
+def checkDistance(origin, destination):
     lat1, lon1 = origin
     lat2, lon2 = destination
     radius = 6371 # km
@@ -194,7 +194,8 @@ def getData():
         print "Have GPS"
         print "We're good!"
 
-    dst = distance((51.414856, -2.652880),(lat, lng))
+    dst = checkDistance((51.414856, -2.652880),(lat, lng))
+
     # If the gps is more the 20km away from the center point
     if dst > 20:
         print "GPS is Incorrect"
