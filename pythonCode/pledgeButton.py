@@ -3,9 +3,11 @@ from Adafruit_Thermal import *
 import string
 import random
 from random import shuffle
+import RPi.GPIO as GPIO
 import httplib
 import urllib
 import requests
+import Image
 import sys
 import datetime
 import math
@@ -13,7 +15,9 @@ import termios
 import os
 import csv
 import time
-import gps
+from gps import *
+import threading
+
 
 print "-----------------------------------------------------"
 print """
@@ -27,16 +31,25 @@ print """
           |___/                                                               """
 
 print "-----------------------------------------------------"
-TERMIOS = termios
 
+# # Setup GPS
+# session = gps.gps("localhost", "2947")
+# session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
 
-# Initialize Printer
-printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
-printer.sleep()
+class GpsPoller(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        global gpsd
+        gpsd = gps(mode=WATCH_ENABLE)
+        self.current_value = None
+        self.running = True
 
-# Setup GPS
-session = gps.gps("localhost", "2947")
-session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+    def run(self):
+        global gpsd
+        while gpsp.running:
+            gpsd.next()
+
+gpsd = None #seting the global variable
 
 global lat
 global lng
@@ -44,13 +57,26 @@ haveGPS = False
 endLat = ""
 endLng = ""
 
+# For debugging
+TERMIOS = termios
+
+# Initialize Printer
+printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
+printer.sleep()
+
 #Setup Http
 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
 passkey = ""
 uniqueID = ""
 credentials = []
 
+# Setup Button
+buttonPin = 12
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+# Button Pushed Flag
+buttonPushed = False
 
 # Get the host, upload extension and secret key
 #----------------------------------------------------
@@ -69,6 +95,7 @@ def getSetupData():
     print "Hostname: %s" % requestHost
     print "Extension: %s" % requestExtension
     print "Secret Key: %s" % secretPOSTKey
+    print "-----------------------------------------------------"
     return requestHost,requestExtension,secretPOSTKey
 
 
@@ -125,19 +152,20 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "-----------------------------------------------------"
     printer.feed(1)
     printer.setSize('L')
+    printer.justify('C')
     printer.println("Big Green Button")
     printer.feed(1)
+    printer.printImage(Image.open('logo.png'), False)
+    printer.justify('L')
     printer.setSize('S')
     print "This is your id: "+unique_id;
     printer.println("Unique ID")
-    printer.underlineOn()
     printer.println(unique_id)
-    printer.underlineOff()
+    printer.feed(1)
     print "This is your password: "+_passkey;
     printer.println("Passkey:")
-    printer.underlineOn()
     printer.println(_passkey)
-    printer.underlineOff()
+    printer.feed(1)
     if haveGPS == False:
         GPSLine = "The GPS didnt Work!"
         print GPSLine
@@ -176,22 +204,17 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
 
 # Get the Data
 #-----------------------------------------------------
-def getData():
+def getData(_lat,_lon,_fix):
     print "-----------------------------------------------------"
     print "Getting Info"
-    # lat = random.uniform(51.582492,51.348403)
-    # lng = random.uniform(-2.780278,-2.404524)
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print "-----------------------------------------------------"
-    if haveGPS == False:
+    if _fix == False:
         print "No GPS"
-        lat = 51.414856
-        lng = -2.652880
     else:
         print "Have GPS"
-        print "We're good!"
 
-    dst = checkDistance((51.414856, -2.652880),(lat, lng))
+    dst = checkDistance((51.414856, -2.652880),(_lat, _lon))
 
     # If the gps is more the 20km away from the center point
     if dst > 20:
@@ -199,8 +222,8 @@ def getData():
     else:
         print "GPS makes sense"
 
-    endLat = str(lat)
-    endLng = str(lng)
+    endLat = str(_lat)
+    endLng = str(_lon)
 
     passkey = GeneratePassword(15)
     seq = endLat[-3:],passkey[-5:],endLng[-3:]
@@ -209,41 +232,64 @@ def getData():
     uniqueID = shuffle_key(pass_string=tempUniqueID)
     print "-----------------------------------------------------"
     print "Printing Ticket"
-    PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=haveGPS,_lat=endLat,_lng=endLng,_time_created=created_at);
+    PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=_fix,_lat=endLat,_lng=endLng,_time_created=created_at);
     print "-----------------------------------------------------"
     print "Sending data to Database"
-    SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
+    SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=_fix,lat=endLat,lng=endLng,time_created=created_at)
 
 # Main Loop
 #----------------------------------------------------
 def main_loop():
+    global lat
+    global lng
     while True:
-        # c = getkey()
-        # if c == 'g':
-        report = session.next()
-        if report['class'] == 'TPV':
-            print "Have GPS"
-            # haveGPS = True
-            if hasattr(report, 'lat'):
-                lat = report.lat
-            if hasattr(report, 'lon'):
-                lon = report.lon
+        input_state = GPIO.input(buttonPin)
+        if input_state == False:
+            print('Button Pressed')
+            if gpsd.fix.mode == 1:
+                haveGPS = False
+                print 'No Fix'
+                lat = random.uniform(51.582492,51.348403)
+                lng = random.uniform(-2.780278,-2.404524)
 
-            print str(lat) + ' ' + str(lon)
-        else:
-            # haveGPS = False
-            print "No GPS"
+            elif gpsd.fix.mode > 1:
+                haveGPS = True
+                print 'Found a Fix'
+                print
+                print ' GPS reading'
+                print '|----------------------------------------|'
+                print '| Latitude     |' , gpsd.fix.latitude
+                print '| Longitude    |' , gpsd.fix.longitude
+                print '| Time utc     |' , gpsd.utc,' + ', gpsd.fix.time
+                print '| Altitude (m) |' , gpsd.fix.altitude
+                print '| Eps          |' , gpsd.fix.eps
+                print '| Epx          |' , gpsd.fix.epx
+                print '| Epv          |' , gpsd.fix.epv
+                print '| Ept          |' , gpsd.fix.ept
+                print '| Speed (m/s)  |' , gpsd.fix.speed
+                print '| Climb        |' , gpsd.fix.climb
+                print '| Track        |' , gpsd.fix.track
+                print '| Mode         |' , gpsd.fix.mode
+                print '| Sats         |' , gpsd.satellites
+                print '|----------------------------------------|'
+                lat = gpsd.fix.latitude
+                lng = gpsd.fix.longitude
 
-        # getData()
-        time.sleep(0.25)
+            getData(_lat=lat,_lon=lng,_fix=haveGPS)
+        time.sleep(0.1)
 
 # Run
 #----------------------------------------------------
 if __name__ == '__main__':
     credentials = getSetupData()
+    gpsp = GpsPoller() # create the thread
+    gpsp.start()
     try:
         main_loop()
     except KeyboardInterrupt:
+        print "\nKilling Thread..."
+        gpsp.running = False
+        gpsp.join()
         printer.sleep()
         print >> sys.stderr, '\nExiting by user request.\n'
         sys.exit(0)
