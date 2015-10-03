@@ -188,16 +188,12 @@ def getData():
     global buttonPushed
     print "-----------------------------------------------------"
     print "Getting Info"
-    # lat = random.uniform(51.582492,51.348403)
-    # lng = random.uniform(-2.780278,-2.404524)
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print "-----------------------------------------------------"
     if haveGPS == False:
         print "No GPS"
         lat = random.uniform(51.582492,51.348403)
         lng = random.uniform(-2.780278,-2.404524)
-        # lat = 51.414856
-        # lng = -2.652880
     else:
         print "Have GPS"
         print "We're good!"
@@ -232,6 +228,7 @@ def getData():
 def main_loop():
     global buttonPushed
     while True:
+        input_state = GPIO.input(buttonPin)
         report = session.next()
         if report['class'] == 'TPV':
             print "Have GPS"
@@ -242,15 +239,15 @@ def main_loop():
                 lon = report.lon
 
             print str(lat) + ' ' + str(lon)
+            if input_state == False:
+                 print('Button Pressed')
+                 getData()
         else:
-            # haveGPS = False
             print "No GPS"
-
-        input_state = GPIO.input(buttonPin)
-        if input_state == False:
-             print('Button Pressed')
-             getData()
-             buttonPushed = True
+            if input_state == False:
+                 print('Button Pressed')
+                 getData()
+                #  buttonPushed = True
 
         time.sleep(0.25)
 
