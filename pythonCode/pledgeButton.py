@@ -34,6 +34,7 @@ excuses = ["the wrong sort of clouds!","the advent of smaller air particles!","t
 # Initialize Printer
 printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
 printer.sleep()
+
 # Setup GPS
 session = gps.gps("localhost", "2947")
 session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
@@ -86,12 +87,12 @@ def getkey():
             termios.tcsetattr(fd, TERMIOS.TCSAFLUSH, old)
     return c
 
+# Shuffle the Values
 #-----------------------------------------------------
 def shuffle_key(pass_string):
     temppass_string = list(pass_string)
     shuffle(temppass_string)
     return ''.join(temppass_string)
-
 
 # Haversine formula
 # Author: Wayne Dyck
@@ -120,11 +121,13 @@ def GeneratePassword(size=15):
 def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
-    printer.feed(1)
-    printer.boldOn()
+    printer.feed(2)
+    printer.setSize('L')
+    printer.inverseOn()
     printer.println("Big Green Button")
-    printer.boldOff()
+    printer.inverseOff()
     printer.feed(1)
+    printer.setSize('M')
     print "This is your id: "+unique_id;
     printer.println("Unique ID")
     printer.println(unique_id)
@@ -154,6 +157,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.println("Please Visit")
     printer.println("http://Someurl.co.uk")
     printer.println("And make your pledge!")
+
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
 def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_created):
@@ -205,6 +209,7 @@ def getData():
     print "Sending data to Database"
     SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
 
+# Main Loop
 #----------------------------------------------------
 def main_loop():
     while True:
@@ -231,6 +236,7 @@ def main_loop():
 
         time.sleep(0.1)
 
+# Run
 #----------------------------------------------------
 if __name__ == '__main__':
     credentials = getSetupData()
