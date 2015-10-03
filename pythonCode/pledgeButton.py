@@ -3,6 +3,7 @@ from Adafruit_Thermal import *
 import string
 import random
 from random import shuffle
+import RPi.GPIO as GPIO
 import httplib
 import urllib
 import requests
@@ -13,8 +14,9 @@ import termios
 import os
 import csv
 import time
-import gps
-import RPi.GPIO as GPIO
+from gps import *
+import threading
+
 
 print "-----------------------------------------------------"
 print """
@@ -36,9 +38,24 @@ TERMIOS = termios
 printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
 printer.sleep()
 
-# Setup GPS
-session = gps.gps("localhost", "2947")
-session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+# # Setup GPS
+# session = gps.gps("localhost", "2947")
+# session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+
+class GpsPoller(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        global gpsd
+        gpsd = gps(mode=WATCH_ENABLE)
+        self.current_value = None
+        self.running = True
+
+    def run(self):
+        global gpsd
+        while gpsp.running:
+            gpsd.next()
+
+gpsd = None #seting the global variable
 
 global lat
 global lng
@@ -192,11 +209,8 @@ def getData():
     print "-----------------------------------------------------"
     if haveGPS == False:
         print "No GPS"
-        lat = random.uniform(51.582492,51.348403)
-        lng = random.uniform(-2.780278,-2.404524)
     else:
         print "Have GPS"
-        print "We're good!"
 
     dst = checkDistance((51.414856, -2.652880),(lat, lng))
 
@@ -221,44 +235,54 @@ def getData():
     print "Sending data to Database"
     SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
 
-    # Button Reset
-    buttonPushed = False
 # Main Loop
 #----------------------------------------------------
 def main_loop():
     global buttonPushed
     while True:
         input_state = GPIO.input(buttonPin)
-        report = session.next()
-        if report['class'] == 'TPV':
-            print "Have GPS"
-            # haveGPS = True
-            if hasattr(report, 'lat'):
-                lat = report.lat
-                print str(lat)
-            if hasattr(report, 'lon'):
-                lon = report.lon
-                print str(lon)
+        if input_state == False:
+            print('Button Pressed')
+            if gpsd.fix.mode == 1:
+                print 'No Fix'
+                lat = random.uniform(51.582492,51.348403)
+                lng = random.uniform(-2.780278,-2.404524)
+                haveGPS = False
+            elif gpsd.fix.mode > 1:
+                haveGPS = True
+                print 'Found a Fix'
+                print
+                print ' GPS reading'
+                print '----------------------------------------'
+                print 'Latitude    ' , gpsd.fix.latitude
+                print 'Longitude   ' , gpsd.fix.longitude
+                print 'Time utc    ' , gpsd.utc,' + ', gpsd.fix.time
+                print 'Altitude (m)' , gpsd.fix.altitude
+                print 'Eps         ' , gpsd.fix.eps
+                print 'Epx         ' , gpsd.fix.epx
+                print 'Epv         ' , gpsd.fix.epv
+                print 'Ept         ' , gpsd.fix.ept
+                print 'Speed (m/s) ' , gpsd.fix.speed
+                print 'Climb       ' , gpsd.fix.climb
+                print 'Track       ' , gpsd.fix.track
+                print 'Mode        ' , gpsd.fix.mode
+                print 'sats        ' , gpsd.satellites
 
-            if input_state == False:
-                 print('Button Pressed')
-                 getData()
-        else:
-            # print "No GPS"
-            if input_state == False:
-                 print('Button Pressed')
-                 getData()
-                #  buttonPushed = True
-
-        time.sleep(0.25)
+            getData()
+        time.sleep(0.1)
 
 # Run
 #----------------------------------------------------
 if __name__ == '__main__':
     credentials = getSetupData()
+    gpsp = GpsPoller() # create the thread
+    gpsp.start()
     try:
         main_loop()
     except KeyboardInterrupt:
+        print "\nKilling Thread..."
+        gpsp.running = False
+        gpsp.join()
         printer.sleep()
         print >> sys.stderr, '\nExiting by user request.\n'
         sys.exit(0)
