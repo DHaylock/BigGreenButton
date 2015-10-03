@@ -243,7 +243,7 @@ def main_loop():
                  print('Button Pressed')
                  getData()
         else:
-            print "No GPS"
+            # print "No GPS"
             if input_state == False:
                  print('Button Pressed')
                  getData()
