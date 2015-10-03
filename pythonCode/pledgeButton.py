@@ -31,13 +31,6 @@ print """
 
 print "-----------------------------------------------------"
 
-# For debugging
-TERMIOS = termios
-
-# Initialize Printer
-printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
-printer.sleep()
-
 # # Setup GPS
 # session = gps.gps("localhost", "2947")
 # session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
@@ -62,6 +55,13 @@ global lng
 haveGPS = False
 endLat = ""
 endLng = ""
+
+# For debugging
+TERMIOS = termios
+
+# Initialize Printer
+printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
+printer.sleep()
 
 #Setup Http
 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
@@ -201,18 +201,17 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
 
 # Get the Data
 #-----------------------------------------------------
-def getData():
-    global buttonPushed
+def getData(_lat,_lon,_fix):
     print "-----------------------------------------------------"
     print "Getting Info"
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print "-----------------------------------------------------"
-    if haveGPS == False:
+    if _fix == False:
         print "No GPS"
     else:
         print "Have GPS"
 
-    dst = checkDistance((51.414856, -2.652880),(lat, lng))
+    dst = checkDistance((51.414856, -2.652880),(_lat, _lon))
 
     # If the gps is more the 20km away from the center point
     if dst > 20:
@@ -220,8 +219,8 @@ def getData():
     else:
         print "GPS makes sense"
 
-    endLat = str(lat)
-    endLng = str(lng)
+    endLat = str(_lat)
+    endLng = str(_lon)
 
     passkey = GeneratePassword(15)
     seq = endLat[-3:],passkey[-5:],endLng[-3:]
@@ -238,37 +237,42 @@ def getData():
 # Main Loop
 #----------------------------------------------------
 def main_loop():
-    global buttonPushed
+    global lat
+    global lng
     while True:
         input_state = GPIO.input(buttonPin)
         if input_state == False:
             print('Button Pressed')
             if gpsd.fix.mode == 1:
+                haveGPS = False
                 print 'No Fix'
                 lat = random.uniform(51.582492,51.348403)
                 lng = random.uniform(-2.780278,-2.404524)
-                haveGPS = False
+
             elif gpsd.fix.mode > 1:
                 haveGPS = True
                 print 'Found a Fix'
                 print
                 print ' GPS reading'
-                print '----------------------------------------'
-                print 'Latitude    ' , gpsd.fix.latitude
-                print 'Longitude   ' , gpsd.fix.longitude
-                print 'Time utc    ' , gpsd.utc,' + ', gpsd.fix.time
-                print 'Altitude (m)' , gpsd.fix.altitude
-                print 'Eps         ' , gpsd.fix.eps
-                print 'Epx         ' , gpsd.fix.epx
-                print 'Epv         ' , gpsd.fix.epv
-                print 'Ept         ' , gpsd.fix.ept
-                print 'Speed (m/s) ' , gpsd.fix.speed
-                print 'Climb       ' , gpsd.fix.climb
-                print 'Track       ' , gpsd.fix.track
-                print 'Mode        ' , gpsd.fix.mode
-                print 'sats        ' , gpsd.satellites
+                print '|----------------------------------------|'
+                print '| Latitude     |' , gpsd.fix.latitude
+                print '| Longitude    |' , gpsd.fix.longitude
+                print '| Time utc     |' , gpsd.utc,' + ', gpsd.fix.time
+                print '| Altitude (m) |' , gpsd.fix.altitude
+                print '| Eps          |' , gpsd.fix.eps
+                print '| Epx          |' , gpsd.fix.epx
+                print '| Epv          |' , gpsd.fix.epv
+                print '| Ept          |' , gpsd.fix.ept
+                print '| Speed (m/s)  |' , gpsd.fix.speed
+                print '| Climb        |' , gpsd.fix.climb
+                print '| Track        |' , gpsd.fix.track
+                print '| Mode         |' , gpsd.fix.mode
+                print '| Sats         |' , gpsd.satellites
+                print '|----------------------------------------|'
+                lat = gpsd.fix.latitude
+                lng = gpsd.fix.longitude
 
-            getData()
+            getData(_lat=lat,_lon=lng,_fix=haveGPS)
         time.sleep(0.1)
 
 # Run
