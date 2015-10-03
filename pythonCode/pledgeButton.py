@@ -7,6 +7,7 @@ import RPi.GPIO as GPIO
 import httplib
 import urllib
 import requests
+import Image
 import sys
 import datetime
 import math
@@ -94,6 +95,7 @@ def getSetupData():
     print "Hostname: %s" % requestHost
     print "Extension: %s" % requestExtension
     print "Secret Key: %s" % secretPOSTKey
+    print "-----------------------------------------------------"
     return requestHost,requestExtension,secretPOSTKey
 
 
@@ -152,6 +154,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.setSize('L')
     printer.println("Big Green Button")
     printer.feed(1)
+    printer.printImage(Image.open('logo.png'), True)
     printer.setSize('S')
     print "This is your id: "+unique_id;
     printer.println("Unique ID")
