@@ -53,7 +53,7 @@ uniqueID = ""
 credentials = []
 
 # Setup Button
-buttonPin = 18
+buttonPin = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
@@ -245,7 +245,7 @@ def main_loop():
              getData()
 
         time.sleep(0.25)
-        
+
 # Run
 #----------------------------------------------------
 if __name__ == '__main__':
