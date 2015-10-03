@@ -26,6 +26,7 @@ print """
            __/ |
           |___/                                                               """
 
+print "-----------------------------------------------------"
 TERMIOS = termios
 
 # Excuses for GPS
@@ -51,8 +52,9 @@ haveGPS = False
 endLat = ""
 endLng = ""
 
-#----------------------------------------------------
+
 # Get the host, upload extension and secret key
+#----------------------------------------------------
 def getSetupData():
     secretPOSTKey = ""
     requestHost = ""
@@ -70,8 +72,9 @@ def getSetupData():
     print "Secret Key: %s" % secretPOSTKey
     return requestHost,requestExtension,secretPOSTKey
 
-#----------------------------------------------------
+
 # Function to get keys
+#----------------------------------------------------
 def getkey():
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
@@ -122,25 +125,28 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "Printing Ticket Data"
     print "-----------------------------------------------------"
     printer.feed(2)
-    printer.setSize('L')
-    printer.inverseOn()
-    printer.println("Big Green Button")
-    printer.inverseOff()
-    printer.feed(1)
     printer.setSize('M')
+    printer.println("Big Green Button")
+    printer.feed(1)
+    printer.setSize('S')
     print "This is your id: "+unique_id;
     printer.println("Unique ID")
+    printer.underlineOn()
     printer.println(unique_id)
+    printer.underlineOff()
     print "This is your password: "+_passkey;
     printer.println("Passkey")
+    printer.underlineOn()
     printer.println(_passkey)
+    printer.underlineOff()
     if haveGPS == False:
-        ex = excuses[random.randint(0,len(excuses)-1)]
-        print "Unfortunately the GPS didnt Work!"
-        printer.println("Unfortunately the GPS didnt Work!")
+        # ex = excuses[random.randint(0,len(excuses)-1)]
+        GPSLine = "The GPS didnt Work!"
+        print GPSLine
+        printer.println(GPSLine)
         # printer.println(ex)
-        print "Your Pledge will be placed at Green Capital HQ"
-        printer.println("Your Pledge will be placed at Green Capital HQ")
+        print "Your Pledge is at Green Capital HQ"
+        printer.println("Your Pledge is at Green Capital HQ")
         print _lat + ","+ _lng;
         printer.println("Lat: "+_lat)
         printer.println("Lng: "+_lng)
@@ -157,6 +163,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.println("Please Visit")
     printer.println("http://Someurl.co.uk")
     printer.println("And make your pledge!")
+    printer.feed(2)
 
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
@@ -233,7 +240,6 @@ def main_loop():
                 # print "No GPS"
 
             getData()
-
         time.sleep(0.1)
 
 # Run
