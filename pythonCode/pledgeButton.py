@@ -152,20 +152,20 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "-----------------------------------------------------"
     printer.feed(1)
     printer.setSize('L')
+    printer.justify('C')
     printer.println("Big Green Button")
     printer.feed(1)
-    printer.printImage(Image.open('logo.png'), True)
+    printer.printImage(Image.open('logo.png'), False)
+    printer.justify('L')
     printer.setSize('S')
     print "This is your id: "+unique_id;
     printer.println("Unique ID")
-    printer.underlineOn()
     printer.println(unique_id)
-    printer.underlineOff()
+    printer.feed(1)
     print "This is your password: "+_passkey;
     printer.println("Passkey:")
-    printer.underlineOn()
     printer.println(_passkey)
-    printer.underlineOff()
+    printer.feed(1)
     if haveGPS == False:
         GPSLine = "The GPS didnt Work!"
         print GPSLine
@@ -232,10 +232,10 @@ def getData(_lat,_lon,_fix):
     uniqueID = shuffle_key(pass_string=tempUniqueID)
     print "-----------------------------------------------------"
     print "Printing Ticket"
-    PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=haveGPS,_lat=endLat,_lng=endLng,_time_created=created_at);
+    PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=_fix,_lat=endLat,_lng=endLng,_time_created=created_at);
     print "-----------------------------------------------------"
     print "Sending data to Database"
-    SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=haveGPS,lat=endLat,lng=endLng,time_created=created_at)
+    SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=_fix,lat=endLat,lng=endLng,time_created=created_at)
 
 # Main Loop
 #----------------------------------------------------
