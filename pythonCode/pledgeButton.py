@@ -15,9 +15,12 @@ import termios
 import os
 import csv
 import time
+import urllib2
 from gps import *
 import threading
 
+
+networkEscape = 1
 
 print "-----------------------------------------------------"
 print """
@@ -302,7 +305,16 @@ if __name__ == '__main__':
     printer.println("Printer Connected")
     printer.println(credentials[0])
     printer.println(credentials[1])
-    printer.feed(1)
+    while (networkEscape == 1):
+        try:
+            urllib2.urlopen(credentials[0])
+        except urllib2.URLError, e:
+            printer.println("Not Connected to Internet")
+            time.sleep(5)
+        else:
+            printer.println("Connected to Internet")
+            networkEscape = 0
+    printer.feed(2)
 
     gpsp = GpsPoller()
     gpsp.start()
