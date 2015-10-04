@@ -68,7 +68,7 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-./startBigGreenButton.sh &
+/home/pi/BigGreenButton/startBigGreenButton.sh &
 
 exit 0
 ```
