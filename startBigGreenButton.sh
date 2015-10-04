@@ -1,7 +1,7 @@
 #!/bin/sh
 
 sudo killall gpsd;
-sleep(1);
+sleep 5;
 sudo gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock;
 cd BigGreenButton/;
 pwd;
