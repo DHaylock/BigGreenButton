@@ -10,7 +10,7 @@ echo "-------------------------------------";
 echo "Start the GPSD Socket";
 sudo gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock;
 echo "-------------------------------------";
-cd pythonCode/;
+cd /home/pi/BigGreenButton/pythonCode/;
 pwd;
-sudo python pledgeButton.py
+python pledgeButton.py
 exit 0;
