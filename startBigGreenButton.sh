@@ -1,11 +1,16 @@
 #!/bin/sh
-
+echo "-------------------------------------";
+echo "Starting the Big Green Button!";
+echo "-------------------------------------";
+echo "Kill all the GPSD processes";
 sudo killall gpsd;
+sudo killall gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock;
 sleep 5;
+echo "-------------------------------------";
+echo "Start the GPSD Socket";
 sudo gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock;
-cd BigGreenButton/;
+echo "-------------------------------------";
+cd pythonCode/;
 pwd;
-
-echo ls -lh;
-
+sudo python pledgeButton.py
 exit 0;
