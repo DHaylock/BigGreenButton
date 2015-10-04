@@ -15,9 +15,12 @@ import termios
 import os
 import csv
 import time
+import urllib2
 from gps import *
 import threading
 
+
+networkEscape = 1
 
 print "-----------------------------------------------------"
 print """
@@ -32,10 +35,8 @@ print """
 
 print "-----------------------------------------------------"
 
-# # Setup GPS
-# session = gps.gps("localhost", "2947")
-# session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
-
+# GPSPoller
+#----------------------------------------------------
 class GpsPoller(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -60,10 +61,6 @@ endLng = ""
 # For debugging
 TERMIOS = termios
 
-# Initialize Printer
-printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
-printer.sleep()
-
 #Setup Http
 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
 passkey = ""
@@ -72,8 +69,12 @@ credentials = []
 
 # Setup Button
 buttonPin = 12
+relayPin = 13
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(relayPin, GPIO.OUT)
+
+
 
 # Button Pushed Flag
 buttonPushed = False
@@ -159,13 +160,16 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.justify('L')
     printer.setSize('S')
     print "This is your id: "+unique_id;
+    printer.justify('C')
     printer.println("Unique ID")
     printer.println(unique_id)
     printer.feed(1)
     print "This is your password: "+_passkey;
-    printer.println("Passkey:")
+    printer.justify('C')
+    printer.println("Passkey")
     printer.println(_passkey)
     printer.feed(1)
+    printer.justify('L')
     if haveGPS == False:
         GPSLine = "The GPS didnt Work!"
         print GPSLine
@@ -185,6 +189,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     print "Created at: " + _time_created;
     printer.println("Created at: " + _time_created)
     printer.feed(1)
+    printer.justify('C')
     printer.println("Please Visit")
     printer.println("http://Someurl.co.uk")
     printer.println("And make your pledge!")
@@ -281,9 +286,40 @@ def main_loop():
 # Run
 #----------------------------------------------------
 if __name__ == '__main__':
+    # Just in case flip the relay to off wait then turn on
+    GPIO.output(relayPin, False)
+    time.sleep(1)
+    GPIO.output(relayPin, True)
+    time.sleep(2)
+
+    # Do this setup
     credentials = getSetupData()
+
+    # Initialize Printer
+    printer = Adafruit_Thermal("/dev/ttyAMA0", 19200, timeout=5)
+    printer.sleep()
+    time.sleep(1)
+    printer.feed(1)
+    printer.println("---------------------------")
+    printer.println("Initialized")
+    printer.println("Printer Connected")
+    printer.println(credentials[0])
+    printer.println(credentials[1])
+    while (networkEscape == 1):
+        try:
+            urllib2.urlopen(credentials[0])
+        except urllib2.URLError, e:
+            printer.println("Not Connected to Internet")
+            time.sleep(5)
+        else:
+            printer.println("Connected to Internet")
+            networkEscape = 0
+    printer.println("---------------------------")
+    printer.feed(1)
+
     gpsp = GpsPoller()
     gpsp.start()
+
     try:
         main_loop()
     except KeyboardInterrupt:
