@@ -282,7 +282,7 @@ def main_loop():
 #----------------------------------------------------
 if __name__ == '__main__':
     credentials = getSetupData()
-    gpsp = GpsPoller() # create the thread
+    gpsp = GpsPoller()
     gpsp.start()
     try:
         main_loop()
