@@ -314,7 +314,8 @@ if __name__ == '__main__':
         else:
             printer.println("Connected to Internet")
             networkEscape = 0
-    printer.feed(2)
+    printer.println("---------------------------")
+    printer.feed(1)
 
     gpsp = GpsPoller()
     gpsp.start()
