@@ -69,7 +69,7 @@ credentials = []
 
 # Setup Button
 buttonPin = 12
-relayPin = 13
+relayPin = 25
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(relayPin, GPIO.OUT)
