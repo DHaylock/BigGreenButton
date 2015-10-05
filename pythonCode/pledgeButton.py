@@ -210,6 +210,7 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
 # Get the Data
 #-----------------------------------------------------
 def getData(_lat,_lon,_fix):
+
     print "-----------------------------------------------------"
     print "Getting Info"
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -250,6 +251,7 @@ def main_loop():
     while True:
         input_state = GPIO.input(buttonPin)
         if input_state == False:
+            pushed = True
             print('Button Pressed')
             if gpsd.fix.mode == 1:
                 haveGPS = False
@@ -280,7 +282,10 @@ def main_loop():
                 lat = gpsd.fix.latitude
                 lng = gpsd.fix.longitude
 
-            getData(_lat=lat,_lon=lng,_fix=haveGPS)
+            if pushed == True:
+                getData(_lat=lat,_lon=lng,_fix=haveGPS)
+                pushed = False
+
         time.sleep(0.1)
 
 # Run
