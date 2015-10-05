@@ -236,22 +236,28 @@ def getData(_lat,_lon,_fix):
     tempUniqueID = ''.join(seq)
 
     uniqueID = shuffle_key(pass_string=tempUniqueID)
-    print "-----------------------------------------------------"
-    print "Printing Ticket"
-    PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=_fix,_lat=endLat,_lng=endLng,_time_created=created_at);
-    print "-----------------------------------------------------"
-    print "Sending data to Database"
-    SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=_fix,lat=endLat,lng=endLng,time_created=created_at)
+
+    pushed = True
+    if pushed == True:
+        print "-----------------------------------------------------"
+        print "Printing Ticket"
+        PrintTicketInfo(unique_id=uniqueID,_passkey=passkey,haveGPS=_fix,_lat=endLat,_lng=endLng,_time_created=created_at);
+        print "-----------------------------------------------------"
+        print "Sending data to Database"
+        SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=uniqueID,passkey=passkey,haveGPS=_fix,lat=endLat,lng=endLng,time_created=created_at)
+        pushed = False
 
 # Main Loop
 #----------------------------------------------------
 def main_loop():
     global lat
     global lng
+
     while True:
+
         input_state = GPIO.input(buttonPin)
         if input_state == False:
-            pushed = True
+
             print('Button Pressed')
             if gpsd.fix.mode == 1:
                 haveGPS = False
@@ -259,7 +265,7 @@ def main_loop():
                 lat = random.uniform(51.582492,51.348403)
                 lng = random.uniform(-2.780278,-2.404524)
 
-            elif gpsd.fix.mode > 1:
+            elif gpsd.fix.mode == 2 | 3:
                 haveGPS = True
                 print 'Found a Fix'
                 print
@@ -282,11 +288,9 @@ def main_loop():
                 lat = gpsd.fix.latitude
                 lng = gpsd.fix.longitude
 
-            if pushed == True:
-                getData(_lat=lat,_lon=lng,_fix=haveGPS)
-                pushed = False
+            getData(_lat=lat,_lon=lng,_fix=haveGPS)
 
-        time.sleep(0.1)
+        time.sleep(0.5)
 
 # Run
 #----------------------------------------------------
