@@ -327,5 +327,6 @@ if __name__ == '__main__':
         gpsp.running = False
         gpsp.join()
         printer.sleep()
+        GPIO.cleanup()
         print >> sys.stderr, '\nExiting by user request.\n'
         sys.exit(0)
