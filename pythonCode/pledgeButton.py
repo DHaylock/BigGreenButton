@@ -259,11 +259,19 @@ def main_loop():
         if input_state == False:
 
             print('Button Pressed')
-            if gpsd.fix.mode == 1:
+            if gpsd.fix.mode == 0:
+                haveGPS = False
+                print 'No GPS'
+                lat = random.uniform(51.582492,51.348403)
+                lng = random.uniform(-2.780278,-2.404524)
+                getData(_lat=lat,_lon=lng,_fix=haveGPS)
+
+            elif gpsd.fix.mode == 1:
                 haveGPS = False
                 print 'No Fix'
                 lat = random.uniform(51.582492,51.348403)
                 lng = random.uniform(-2.780278,-2.404524)
+                getData(_lat=lat,_lon=lng,_fix=haveGPS)
 
             elif gpsd.fix.mode == 2 | 3:
                 haveGPS = True
@@ -287,8 +295,8 @@ def main_loop():
                 print '|----------------------------------------|'
                 lat = gpsd.fix.latitude
                 lng = gpsd.fix.longitude
+                getData(_lat=lat,_lon=lng,_fix=haveGPS)
 
-            getData(_lat=lat,_lon=lng,_fix=haveGPS)
 
         time.sleep(0.5)
 
