@@ -42,6 +42,25 @@ $ sudo apt-get update
 Clone this Repo
 ```git clone https://github.com/DHaylock/BigGreenButton.git```
 
+
+####MySQL Setup
+
+```CREATE TABLE IF NOT EXISTS 'biggreenbuttonlocations' (
+  'id' int(11) NOT NULL AUTO_INCREMENT,
+  'lat' varchar(255) NOT NULL,
+  'lng' varchar(255) NOT NULL,
+  'pledgeid' varchar(55) NOT NULL,
+  'passkey' varchar(55) NOT NULL,
+  'pledgename' text,
+  'pledge' text,
+  'updated_at' varchar(255) DEFAULT NULL,
+  'movegps' tinyint(1) NOT NULL,
+  'email' varchar(255) DEFAULT NULL,
+  'timestamp' varchar(255) NOT NULL,
+  PRIMARY KEY ('id')
+)```
+
+
 ####Wiring
 
 ![Schematic](./images/biggreenbutton_schem.png "Schematic")
