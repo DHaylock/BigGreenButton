@@ -74,8 +74,6 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(relayPin, GPIO.OUT)
 
-
-
 # Button Pushed Flag
 buttonPushed = False
 
@@ -98,7 +96,6 @@ def getSetupData():
     print "Secret Key: %s" % secretPOSTKey
     print "-----------------------------------------------------"
     return requestHost,requestExtension,secretPOSTKey
-
 
 # Function to get keys
 #----------------------------------------------------
@@ -198,7 +195,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 # Send the Ticket Data to the Server
 #-----------------------------------------------------
 def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_created):
-    params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"havegps":haveGPS,"lat":lat,"lng":lng,"passkey":passkey}
+    params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"havegps":haveGPS,"lat":lat,"lng":lng,"passkey":passkey,"created_at":time_created}
     r = requests.post(host+extensions,data=params)
     print "-----------------------------------------------------"
     if r.status_code == 200:
@@ -231,7 +228,7 @@ def getData(_lat,_lon,_fix):
     endLat = str(_lat)
     endLng = str(_lon)
 
-    passkey = GeneratePassword(15)
+    passkey = GeneratePassword(7)
     seq = endLat[-3:],passkey[-5:],endLng[-3:]
     tempUniqueID = ''.join(seq)
 
@@ -254,7 +251,6 @@ def main_loop():
     global lng
 
     while True:
-
         input_state = GPIO.input(buttonPin)
         if input_state == False:
 
@@ -296,7 +292,6 @@ def main_loop():
                 lat = gpsd.fix.latitude
                 lng = gpsd.fix.longitude
                 getData(_lat=lat,_lon=lng,_fix=haveGPS)
-
 
         time.sleep(0.5)
 
