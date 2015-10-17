@@ -30,6 +30,8 @@ The code has the following dependancies:
 * [Adafruit Thermal Printer](https://github.com/adafruit/Python-Thermal-Printer)
 
 ####How to install
+
+#####Raspberry Pi
 Install the following Dependancies
 ```
 $ sudo apt-get install pip
@@ -40,10 +42,18 @@ $ sudo apt-get update
 ```
 
 Clone this Repo
-```git clone https://github.com/DHaylock/BigGreenButton.git```
+```
+git clone https://github.com/DHaylock/BigGreenButton.git
+```
 
+
+#####Server
+The public folder should be placed on the server.
+The php files should point towards the database.
 
 ####MySQL Setup
+You will need to setup a MySQL database.
+Paste the following code into sql tab to create the table.
 
 ```
 CREATE TABLE IF NOT EXISTS 'biggreenbuttonlocations' (
@@ -61,7 +71,6 @@ CREATE TABLE IF NOT EXISTS 'biggreenbuttonlocations' (
   PRIMARY KEY ('id')
 )
 ```
-
 
 ####Wiring
 
