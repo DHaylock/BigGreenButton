@@ -45,7 +45,8 @@ Clone this Repo
 
 ####MySQL Setup
 
-```CREATE TABLE IF NOT EXISTS 'biggreenbuttonlocations' (
+```
+CREATE TABLE IF NOT EXISTS 'biggreenbuttonlocations' (
   'id' int(11) NOT NULL AUTO_INCREMENT,
   'lat' varchar(255) NOT NULL,
   'lng' varchar(255) NOT NULL,
@@ -58,7 +59,8 @@ Clone this Repo
   'email' varchar(255) DEFAULT NULL,
   'timestamp' varchar(255) NOT NULL,
   PRIMARY KEY ('id')
-)```
+)
+```
 
 
 ####Wiring
