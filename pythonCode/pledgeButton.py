@@ -197,7 +197,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_created):
     params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"havegps":haveGPS,"lat":lat,"lng":lng,"passkey":passkey,"created_at":time_created}
 
-    if haveInternet = True:
+    if haveInternet == True:
         r = requests.post(host+extensions,data=params)
         print "-----------------------------------------------------"
         if r.status_code == 200:
@@ -205,7 +205,7 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
         else:
             print "Houston we have a problem " + r.status_code
             print r.text
-    elif haveInternet = False:
+    elif haveInternet == False:
         print "No Internet"
         print params
 
