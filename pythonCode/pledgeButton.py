@@ -19,6 +19,7 @@ import urllib2
 from gps import *
 import threading
 
+jsonData = []
 haveInternet = False
 networkEscape = 1
 
@@ -207,6 +208,8 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
             print r.text
     elif haveInternet == False:
         print "No Internet"
+        jsonData.append(params);
+        print jsonData
         print params
 
 
