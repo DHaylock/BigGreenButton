@@ -19,7 +19,7 @@ import urllib2
 from gps import *
 import threading
 
-
+haveInternet = False
 networkEscape = 1
 
 print "-----------------------------------------------------"
@@ -139,7 +139,7 @@ def checkDistance(origin, destination):
 
 # Generate a New Password
 #-----------------------------------------------------
-def GeneratePassword(size=15):
+def GeneratePassword(size=8):
     randomKey = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(size)])
     return randomKey
 
@@ -196,13 +196,20 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
 #-----------------------------------------------------
 def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_created):
     params = {'pledge': "1","secretkey":secretKey,"pledgeid":id,"havegps":haveGPS,"lat":lat,"lng":lng,"passkey":passkey,"created_at":time_created}
-    r = requests.post(host+extensions,data=params)
-    print "-----------------------------------------------------"
-    if r.status_code == 200:
-        print "Details Sent"
-    else:
-        print "Houston we have a problem " + r.status_code
-        print r.text
+
+    if haveInternet = True:
+        r = requests.post(host+extensions,data=params)
+        print "-----------------------------------------------------"
+        if r.status_code == 200:
+            print "Details Sent"
+        else:
+            print "Houston we have a problem " + r.status_code
+            print r.text
+    elif haveInternet = False:
+        print "No Internet"
+        print params
+
+
 
 # Get the Data
 #-----------------------------------------------------
@@ -229,7 +236,7 @@ def getData(_lat,_lon,_fix):
     endLng = str(_lon)
 
     passkey = GeneratePassword(7)
-    seq = endLat[-3:],passkey[-5:],endLng[-3:]
+    seq = endLat[-2:],passkey[-2:],endLng[-2:]
     tempUniqueID = ''.join(seq)
 
     uniqueID = shuffle_key(pass_string=tempUniqueID)
@@ -258,15 +265,15 @@ def main_loop():
             if gpsd.fix.mode == 0:
                 haveGPS = False
                 print 'No GPS'
-                lat = random.uniform(51.582492,51.348403)
-                lng = random.uniform(-2.780278,-2.404524)
+                lat = 51.4513363  #random.uniform(51.582492,51.348403)
+                lng = -2.5982121 #random.uniform(-2.780278,-2.404524)
                 getData(_lat=lat,_lon=lng,_fix=haveGPS)
 
             elif gpsd.fix.mode == 1:
                 haveGPS = False
                 print 'No Fix'
-                lat = random.uniform(51.582492,51.348403)
-                lng = random.uniform(-2.780278,-2.404524)
+                lat = 51.4513363
+                lng = -2.5982121
                 getData(_lat=lat,_lon=lng,_fix=haveGPS)
 
             elif gpsd.fix.mode == 2 | 3:
@@ -322,9 +329,11 @@ if __name__ == '__main__':
             urllib2.urlopen(credentials[0])
         except urllib2.URLError, e:
             printer.println("Not Connected to Internet")
+            haveInternet = False
             time.sleep(5)
         else:
             printer.println("Connected to Internet")
+            haveInternet = True
             networkEscape = 0
     printer.println("---------------------------")
     printer.feed(1)
