@@ -224,7 +224,7 @@ def saveToJSONFile(filename,params):
         js = json.dumps(jsonData)
         print(js)
         z = str(json.dumps(jsonData,indent=4, separators=(',', ': ')))
-        json_file.seek(0,0)
+        # json_file.seek(0,0)
         json_file.write(z)
         json_file.close()
 # Get the Data

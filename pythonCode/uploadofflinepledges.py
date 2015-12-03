@@ -28,11 +28,11 @@ def getSetupData():
             requestExtension = row['Request']
             secretPOSTKey = row['Secret']
 
-    # print "-----------------------------------------------------"
-    # print "Hostname: %s" % requestHost
-    # print "Extension: %s" % requestExtension
-    # print "Secret Key: %s" % secretPOSTKey
-    # print "-----------------------------------------------------"
+    print "-----------------------------------------------------"
+    print "Hostname: %s" % requestHost
+    print "Extension: %s" % requestExtension
+    print "Secret Key: %s" % secretPOSTKey
+    print "-----------------------------------------------------"
     return requestHost,requestExtension,secretPOSTKey
 
 #-----------------------------------------------------
@@ -44,21 +44,17 @@ def loadJSONFile(filename):
 
         if len(json_data) > 0:
             print("Have Data")
-            jsonData = json_data#["pledges"]
-            for pledge in json_data:#['pledges']:
+            jsonData = json_data
+            for pledge in json_data:
                 SendTicketData(host=credentials[0],extensions=credentials[1],secretKey=credentials[2],id=pledge['pledgeid'],passkey=pledge['passkey'],haveGPS=pledge['havegps'],lat=pledge['lat'],lng=pledge['lng'],time_created=pledge['created_at'])
-                # print("Deleting File")
         else:
             print("No Data to Post")
             print("Quitting")
-            # sys.exit(0)
+            sys.exit(0)
 
-        js = {"pledge": "1","secretkey":"sd2ela5234kn7312din","pledgeid":"id","havegps":"haveGPS","lat":"lat","lng":"lng","passkey":"passkey","created_at":"time_created"}
-        jsonData.append(js)
 
         js = json.dumps(jsonData)
-        print(js)
-        z = str(json.dumps(jsonData,indent=4, separators=(',', ': ')))
+        z = str([])
         json_file.seek(0,0)
         json_file.write(z)
         json_file.close()
