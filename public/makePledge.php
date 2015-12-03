@@ -1,43 +1,34 @@
 <?php
-
-@$db = mysql_connect('localhost', 'root', 'root');
-if (!$db) {
-	echo "Error: no database connection";
-	exit;
-}
-if (!mysql_select_db('BristolBigGreenButton')) {
-	echo "Error: no database selected";
-	exit;
-}
-
 if (isset($_POST['submit'])) {
 
-	$isAuthQuery = "SELECT `passkey`,`pledgeid`,`timestamp` FROM `locations` WHERE `pledgeid`=|;
-	$isAuth = mysql_query($isAuthQuery);
+    $ids = mysql_real_escape_string($_POST['pledgeid']);
+	$isAuthQuery = "SELECT `passkey`,`pledgeid`,`timestamp` FROM `biggreenbuttonlocations` WHERE `pledgeid` = '".$ids."';";
+    $isAuth = mysql_query($isAuthQuery);
 
 	if (!$isAuth) {
-	    echo "Error: ".mysql_error();
+	    echo "Error: " .mysql_error();
 	    exit;
   	}
 
-	if($_POST['securekey'] != mysql_result($isAuth, 0)) {
+    $key = mysql_result($isAuth, 0, 'passkey');
+
+	if($_POST['securekey'] != $key) {
 		echo "Incorrect Key";
 		exit;
 	}
+    // echo mysql_real_escape_string($_POST['emailadd']);
+    $emailAdd = mysql_real_escape_string($_POST['emailadd']);
+    $pledge = mysql_real_escape_string($_POST['pledge']);
+    $pledgeName = mysql_real_escape_string($_POST['pledgename']);
+    $pledgeid = mysql_real_escape_string($_POST['pledgeid']);
 
-	$query = "UPDATE `locations` SET `pledge`='".mysql_real_escape_string($_POST['pledge'])."',`pledgename`='".mysql_real_escape_string($_POST['pledgename'])."',`updated_at`=NOW() WHERE `pledgeid`='".mysql_real_escape_string($_POST['pledgeid'])."'";
 
+	$query = "UPDATE `biggreenbuttonlocations` SET `email`= '".$emailAdd."' ,`pledge`= '".$pledge."' ,`pledgename`= '".$pledgeName."' ,`updated_at`= NOW() WHERE `pledgeid`= '".$pledgeid."'";
 	$result = mysql_query($query);
 	if (!$result) {
 		echo "Error: couldn't execute query. ".mysql_error();
 		exit;
 	}
-
-	// if (isset(mysql_real_escape_string($_POST['emailaddress'])) && !empty(mysql_real_escape_string($_POST['emailaddress']))) {
-	// 	$to      = mysql_real_escape_string($_POST['emailaddress']);
-	// 	$subject = 'Your Pledge';
-	// 	$message = 'You have pledged to '.mysql_real_escape_string($_POST['pledge']);
-	// 	mail($to, $subject, $message);
-	// }
+    header("location:pledgeSuccessful.php?pledge=".$pledge."&pledgeid=".$pledgeid);
 }
 ?>

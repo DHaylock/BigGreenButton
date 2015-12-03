@@ -1,16 +1,5 @@
 <?php
-
-
-@$db = mysql_connect('localhost', 'root', 'root');
-if (!$db) {
-	echo "Error: no database connection";
-	exit;
-}
-if (!mysql_select_db('BristolBigGreenButton')) {
-	echo "Error: no database selected";
-	exit;
-}
-
+// header('Access-Control-Allow-Origin: *'); 
 if (isset($_GET['get'])) {
 
 	$query = "SELECT `pledgeid`,`lat`, `lng`, `timestamp`,
@@ -18,7 +7,7 @@ if (isset($_GET['get'])) {
 				IF(`pledge` IS NULL,'No Pledge has been Made Yet',pledge) as pledge,
 				IF(`updated_at` IS NULL,'No Pledge has been Made Yet',updated_at) as updated_at,
 				IF(`pledgename` IS NULL,'No Pledge has been Made Yet',pledgename) as pledgename
-				FROM `locations`
+				FROM `biggreenbuttonlocations`
 				ORDER BY 'timestamp' ASC";
 
 	$result = mysql_query($query);
@@ -37,10 +26,8 @@ if (isset($_GET['get'])) {
 	echo json_encode($rows);
 }
 elseif (isset($_GET['newMarkers'])) {
-
-
 	$latestId = $_GET['maxID'];
-	$lastIDQuery = "SELECT id FROM locations ORDER BY id DESC LIMIT 1";
+	$lastIDQuery = "SELECT id FROM `biggreenbuttonlocations` ORDER BY id DESC LIMIT 1";
 	$isAuth = mysql_query($lastIDQuery);
 	if (!$isAuth) {
 	    echo "Error: ".mysql_error();
@@ -64,7 +51,7 @@ elseif (isset($_GET['newMarkers'])) {
 				IF(`pledge` IS NULL,'No Pledge has been Made Yet',pledge) as pledge,
 				IF(`updated_at` IS NULL,'No Pledge has been Made Yet',updated_at) as updated_at,
 				IF(`pledgename` IS NULL,'No Pledge has been Made Yet',pledgename) as pledgename
-				FROM `locations`
+				FROM `biggreenbuttonlocations`
 				WHERE `id` > '.$latestId.'
 				ORDER BY 'timestamp' ASC";
 

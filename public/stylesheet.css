@@ -1,7 +1,11 @@
-html, body, #map-canvas {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+html, body, #pledgemap {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    /* overflow:hidden; */
+}
+html {
+    overflow-y: hidden;
 }
 .menu {
   -webkit-box-shadow: 0px 0px 34px -8px rgba(0,0,0,0.50);
