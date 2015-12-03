@@ -208,12 +208,25 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
             print r.text
     elif haveInternet == False:
         print "No Internet"
-        jsonData.append(params);
-        print jsonData
-        print params
+        saveToJSONFile(filename="pledges.json",params=params)
 
 
 
+#-----------------------------------------------------
+# Parse json
+#-----------------------------------------------------
+def saveToJSONFile(filename,params):
+    with open(filename,'r+') as json_file:
+        json_data = json.load(json_file)
+        js = params
+        jsonData.append(js)
+
+        js = json.dumps(jsonData)
+        print(js)
+        z = str(json.dumps(jsonData,indent=4, separators=(',', ': ')))
+        json_file.seek(0,0)
+        json_file.write(z)
+        json_file.close()
 # Get the Data
 #-----------------------------------------------------
 def getData(_lat,_lon,_fix):

@@ -1,0 +1,42 @@
+[
+    {
+        "pledge": "1",
+        "passkey": "passkey",
+        "created_at": "time_created",
+        "pledgeid": "id",
+        "secretkey": "",
+        "lat": "lat",
+        "lng": "lng",
+        "havegps": "haveGPS"
+    },
+    {
+        "pledge": "1",
+        "passkey": "passkey",
+        "created_at": "time_created",
+        "pledgeid": "id",
+        "secretkey": "",
+        "lat": "lat",
+        "lng": "lng",
+        "havegps": "haveGPS"
+    },
+    {
+        "pledge": "1",
+        "passkey": "passkey",
+        "created_at": "time_created",
+        "pledgeid": "id",
+        "secretkey": "",
+        "lat": "lat",
+        "lng": "lng",
+        "havegps": "haveGPS"
+    },
+    {
+        "secretkey": "",
+        "created_at": "time_created",
+        "pledge": "1",
+        "passkey": "passkey",
+        "lat": "lat",
+        "lng": "lng",
+        "pledgeid": "id",
+        "havegps": "haveGPS"
+    }
+]
