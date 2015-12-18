@@ -200,6 +200,7 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
 
     if haveInternet == True:
         r = requests.post(host+extensions,data=params)
+        print r
         print "-----------------------------------------------------"
         if r.status_code == 200:
             print "Details Sent"
