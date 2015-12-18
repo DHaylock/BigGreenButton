@@ -204,7 +204,7 @@ def SendTicketData(host,extensions,id,secretKey,passkey,haveGPS,lat,lng,time_cre
         if r.status_code == 200:
             print "Details Sent"
         else:
-            print "Houston we have a problem " + r.status_code
+            print r.status_code
             print r.text
     elif haveInternet == False:
         print "No Internet"
