@@ -5,7 +5,7 @@ var markerClusterer;
 var maxID;
 window.markersArray = [];
 //----------------------------------------------------------------------
-function init(fid) {
+function init() {
     map = new L.Map('pledgemap');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
@@ -136,7 +136,7 @@ function addNewMarker() {
 }
 //----------------------------------------------------------------------
 $(document).ready(function() {
-    init(id);
+    init();
 
     setInterval(function () {
         addNewMarker();
