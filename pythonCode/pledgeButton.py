@@ -189,7 +189,7 @@ def PrintTicketInfo(unique_id,_passkey,haveGPS,_lat,_lng,_time_created):
     printer.feed(1)
     printer.justify('C')
     printer.println("Please Visit")
-    printer.println("http://Someurl.co.uk")
+    printer.println(credentials[0])
     printer.println("And make your pledge!")
     printer.feed(2)
 
