@@ -1,5 +1,7 @@
 <?php
 // header('Access-Control-Allow-Origin: *'); 
+include('dbconnect.php');
+
 if (isset($_GET['get'])) {
 
 	$query = "SELECT `pledgeid`,`lat`, `lng`, `timestamp`,
