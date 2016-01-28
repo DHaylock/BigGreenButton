@@ -1,13 +1,11 @@
 <?php
-    @$db = mysql_connect('localhost', 'dbname', 'dbpassword');
-    if (!$db)
-    {
-        echo "Error: no database connection";
-        exit;
-    }
-    if (!mysql_select_db('dbname'))
-    {
-        echo "Error: no database selected";
-        exit;
-    }
-    ?>
+	$dbname = "<Your-Database-Name>";
+	$passkey= "<Your-Database-Password?>";
+	$host = "localhost";
+	try {
+		$DBH = new PDO('mysql:host=localhost;dbname=<Your-Database-Name>',$dbname,$passkey);
+	} catch (PDOException $e) {
+		echo $e->getMessage();
+		exit;
+	}
+?>
