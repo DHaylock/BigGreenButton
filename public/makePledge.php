@@ -1,32 +1,38 @@
 <?php
+include('dbconnect.php');
 if (isset($_POST['submit'])) {
 
-    $ids = mysql_real_escape_string($_POST['pledgeid']);
-	$isAuthQuery = "SELECT `passkey`,`pledgeid`,`timestamp` FROM `biggreenbuttonlocations` WHERE `pledgeid` = '".$ids."';";
-    $isAuth = mysql_query($isAuthQuery);
 
-	if (!$isAuth) {
-	    echo "Error: " .mysql_error();
+    $ids = $_POST['pledgeid'];
+	$isAuthQuery = "SELECT `passkey`,`pledgeid`,`timestamp` FROM `biggreenbuttonlocations` WHERE `pledgeid` = '".$ids."';";
+    $isAuth = $DBH->prepare($isAuthQuery);
+    $isAuth->execute();
+
+    if (!$isAuth) {
+	    echo "Error: " .$isAuth->errorCode();
 	    exit;
   	}
-
-    $key = mysql_result($isAuth, 0, 'passkey');
+    $key = "";
+    while ($row = $isAuth->fetch(PDO::FETCH_ASSOC)) {
+           $key = $row['passkey'];
+    }
 
 	if($_POST['securekey'] != $key) {
 		echo "Incorrect Key";
 		exit;
 	}
-    // echo mysql_real_escape_string($_POST['emailadd']);
-    $emailAdd = mysql_real_escape_string($_POST['emailadd']);
-    $pledge = mysql_real_escape_string($_POST['pledge']);
-    $pledgeName = mysql_real_escape_string($_POST['pledgename']);
-    $pledgeid = mysql_real_escape_string($_POST['pledgeid']);
 
+    $emailAdd = $_POST['emailadd'];
+    $pledge = $_POST['pledge'];
+    $pledgeName = $_POST['pledgename'];
+    $pledgeid = $_POST['pledgeid'];
 
 	$query = "UPDATE `biggreenbuttonlocations` SET `email`= '".$emailAdd."' ,`pledge`= '".$pledge."' ,`pledgename`= '".$pledgeName."' ,`updated_at`= NOW() WHERE `pledgeid`= '".$pledgeid."'";
-	$result = mysql_query($query);
-	if (!$result) {
-		echo "Error: couldn't execute query. ".mysql_error();
+    $update = $DBH->prepare($query);
+    $update->execute();
+
+	if (!$update) {
+		echo "Error: couldn't execute query. ".$update->errorCode();
 		exit;
 	}
     header("location:pledgeSuccessful.php?pledge=".$pledge."&pledgeid=".$pledgeid);

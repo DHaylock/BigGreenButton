@@ -5,7 +5,7 @@ var markerClusterer;
 var maxID;
 window.markersArray = [];
 //----------------------------------------------------------------------
-function init() {
+function init(fid) {
     map = new L.Map('pledgemap');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
@@ -18,7 +18,7 @@ function init() {
 
     var bristol = new L.LatLng(51.4419797,-2.5954907);
     map.setView(bristol, 13);
-    $.getJSON("getData.php?get", function(json1) {
+    $.getJSON("http://button.do15.co.uk/getData.php?get", function(json1) {
         $.each(json1, function(key, data) {
             var markerLocation = new L.LatLng(data.lat, data.lng);
             var marker = new L.Marker(markerLocation);
@@ -89,7 +89,7 @@ function findPledgeReturn(fid) {
 //------------------------------------------------------------------------------
 function addNewMarker() {
     maxID = markersId[markersId.length-1];
-    $.getJSON("getData.php?newMarkers&maxID="+maxID, function(json1) {
+    $.getJSON("http://button.do15.co.uk/getData.php?newMarkers&maxID="+maxID, function(json1) {
         console.log("Getting Data");
         $.each(json1, function(key, data) {
             var markerLocation = new L.LatLng(data.lat, data.lng);
@@ -126,17 +126,17 @@ function addNewMarker() {
         });
 
     }).done(function() {
-        console.log("Added New Marker");
-        $('#alertBar').animate({
-            opacity: 1
-        },500).delay(2000).animate({
-                opacity: 0
-            },1000);
+        // console.log("Added New Marker");
+        // $('#alertBar').animate({
+        //     opacity: 1
+        // },500).delay(2000).animate({
+        //         opacity: 0
+        //     },1000);
     });
 }
 //----------------------------------------------------------------------
 $(document).ready(function() {
-    init();
+    init(id);
 
     setInterval(function () {
         addNewMarker();

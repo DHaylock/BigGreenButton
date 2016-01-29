@@ -1,7 +1,5 @@
 <?php
-// header('Access-Control-Allow-Origin: *'); 
 include('dbconnect.php');
-
 if (isset($_GET['get'])) {
 
 	$query = "SELECT `pledgeid`,`lat`, `lng`, `timestamp`,
@@ -12,41 +10,41 @@ if (isset($_GET['get'])) {
 				FROM `biggreenbuttonlocations`
 				ORDER BY 'timestamp' ASC";
 
-	$result = mysql_query($query);
-	if (!$result) {
-		echo "Error: couldn't execute query. ".mysql_error();
+	$get = $DBH->prepare($query);
+	$get->execute();
+
+	if (!$get) {
+		echo "Error: couldn't execute query. ".$get->errorCode();
 		exit;
 	}
-	if (mysql_num_rows($result) == 0) {
-		echo "[]";
+
+	if ($get->fetchColumn() == 0) {
+		echo '[]';
 		exit;
 	}
+
 	$rows = array();
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = $get->fetch(PDO::FETCH_ASSOC)) {
 		$rows[] = $row;
 	}
+
 	echo json_encode($rows);
 }
 elseif (isset($_GET['newMarkers'])) {
 	$latestId = $_GET['maxID'];
 	$lastIDQuery = "SELECT id FROM `biggreenbuttonlocations` ORDER BY id DESC LIMIT 1";
-	$isAuth = mysql_query($lastIDQuery);
+	$isAuth = $DBH->prepare($lastIDQuery);
+	$isAuth->execute();
+
 	if (!$isAuth) {
-	    echo "Error: ".mysql_error();
+	    echo "Error: ".$get->errorCode();
 	    exit;
   	}
 
-	if ($latestId == mysql_result($isAuth, 0))
-	{
+	if ($latestId == $isAuth->fetchAll(PDO::FETCH_COLUMN,0)) {
 		echo "No new Markers";
 		exit;
 	}
-	// echo "New Markers";
-	// if (mysql_result($isAuth, 0)) <= $latestId) {
-	// 	exit;
-	// }
-
-	// echo $stuff;
 
 	$query = "SELECT `pledgeid`,`lat`, `lng`, `timestamp`,
 				IF(`id` is NULL,'broken',id) as id,
@@ -57,20 +55,21 @@ elseif (isset($_GET['newMarkers'])) {
 				WHERE `id` > '.$latestId.'
 				ORDER BY 'timestamp' ASC";
 
-	$result = mysql_query($query);
-	if (!$result) {
-	echo "Error: couldn't execute query. ".mysql_error();
+	$get = $DBH->prepare($query);
+	$get->execute();
+	if (!$get) {
+		echo "Error: couldn't execute query. ".$get->errorCode();
 		exit;
 	}
-	if (mysql_num_rows($result) == 0) {
-		echo "[]";
+	if ($get->fetchColumn() == 0) {
+		echo '[]';
 		exit;
 	}
+
 	$rows = array();
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = $get->fetch(PDO::FETCH_ASSOC)) {
 		$rows[] = $row;
 	}
 	echo json_encode($rows);
 }
-
 ?>

@@ -45,7 +45,7 @@
             this.start()
         }
         var a = new timer(function() {
-            window.location.href= 'index.php?pledgeid='+<?php echo json_encode($pledgeId); ?>;
+            window.location.href= 'http://button.do15.co.uk/index.php?pledgeid='+<?php echo json_encode($pledgeId); ?>;
         }, 5000);
 
         setInterval(function() {
