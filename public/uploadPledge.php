@@ -31,7 +31,7 @@ if(isset($_POST['pledge']) && ($_POST['pledge'] == '1')) {
 
 	$pdostatement = "INSERT INTO `biggreenbuttonlocations` (`lat`,`lng`,`pledgeid`,`havegps`,`passkey`,`timestamp`) VALUES(:lat,:lng,:pledgeid,:havegps,:passkey,:timestamp)";
 	$q = $DBH->prepare($pdostatement);
-	$q->execute(array(':lat' => $lat,':lng' => $lng,':pledgeid' => $pledgeid,':havegps' => $havegps,':passkey' => $passkey,':timestamp' => $createdat));
+	$q->execute(array(':lat' => $lat,':lng' => $lng,':pledgeid' => $pledgeid,':movegps' => $havegps,':passkey' => $passkey,':timestamp' => $createdat));
 
 	// Error Handling
 	if (!$q) {
