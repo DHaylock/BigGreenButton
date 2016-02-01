@@ -29,7 +29,7 @@ if(isset($_POST['pledge']) && ($_POST['pledge'] == '1')) {
 	$passkey = $_POST['passkey'];
 	$createdat = $_POST['created_at'];
 
-	$pdostatement = "INSERT INTO `biggreenbuttonlocations` (`lat`,`lng`,`pledgeid`,`havegps`,`passkey`,`timestamp`) VALUES(:lat,:lng,:pledgeid,:havegps,:passkey,:timestamp)";
+	$pdostatement = "INSERT INTO `biggreenbuttonlocations` (`lat`,`lng`,`pledgeid`,`movegps`,`passkey`,`timestamp`) VALUES(:lat,:lng,:pledgeid,:movegps,:passkey,:timestamp)";
 	$q = $DBH->prepare($pdostatement);
 	$q->execute(array(':lat' => $lat,':lng' => $lng,':pledgeid' => $pledgeid,':movegps' => $havegps,':passkey' => $passkey,':timestamp' => $createdat));
 
